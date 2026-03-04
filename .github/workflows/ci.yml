@@ -62,5 +62,6 @@ jobs:
             FRONTEND_URL=https://cris-rpg-system.vercel.app
             EOF
 
-            docker compose up -d --build postgres backend
+            docker compose build --no-cache backend
+            docker compose up -d postgres backend
             docker image prune -f
