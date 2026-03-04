@@ -1,0 +1,364 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  MASTER
+  PLAYER
+}
+
+enum Atributo {
+  FOR
+  AGI
+  VIG
+  INT
+  PRE
+}
+
+enum TipoDano {
+  FISICO
+  ENERGETICO
+  MENTAL
+  ESPIRITUAL
+}
+
+enum CombatState {
+  IDLE
+  COMBAT_CREATED
+  INITIATIVE_ROLLED
+  ROUND_ACTIVE
+  ROUND_FINISHED
+  COMBAT_FINISHED
+}
+
+enum ActionType {
+  TECHNIQUE
+  SKILL
+  DAMAGE
+  CONDITION
+  XP
+  LEVELUP
+  ATAQUE
+  DEFESA
+  CD_TEST
+  DANO
+}
+
+model User {
+  id         String    @id @default(uuid())
+  email      String    @unique
+  password   String
+  role       Role
+  createdAt  DateTime  @default(now())
+
+  campaigns           Campaign[]
+  characters          Character[]
+  techniqueTemplates  TechniqueTemplate[]
+}
+
+model Campaign {
+  id             String    @id @default(uuid())
+  name           String
+  masterId       String
+  master         User      @relation(fields: [masterId], references: [id])
+  isActiveCombat Boolean   @default(false)
+  inviteCode     String    @unique @default(uuid())
+  createdAt      DateTime  @default(now())
+
+  characters     Character[]
+  combats        Combat[]
+  npcs           Npc[]
+  logs           CombatLog[]
+}
+
+model Character {
+  id               String    @id @default(uuid())
+  campaignId       String
+  campaign         Campaign  @relation(fields: [campaignId], references: [id])
+  userId           String
+  user             User      @relation(fields: [userId], references: [id])
+  nome             String
+  origemId         String?
+  origemRelacao    Origem?   @relation(fields: [origemId], references: [id])
+  specializationId String?
+  specialization   Specialization? @relation(fields: [specializationId], references: [id])
+  nivel            Int       @default(1)
+  xpAtual          Int       @default(0)
+  hpAtual          Int       @default(10)
+  hpMax            Int       @default(10)
+  energiaAtual     Int       @default(5)
+  energiaMax       Int       @default(5)
+  maestriaBonus    Int       @default(2)
+  isApproved       Boolean   @default(false)
+  isMob            Boolean   @default(false)
+  isActive         Boolean   @default(true)
+  pendingAptidaoSlots Int    @default(0)
+  pendingAtributoPoints Int  @default(0)
+  createdAt        DateTime  @default(now())
+
+  attributes       CharacterAttribute?
+  skills           CharacterSkill[]
+  aptitudes        CharacterAptitude[]
+  techniques       Technique[]
+  weapons          Weapon[]
+  combatParticipations CombatParticipant[]
+}
+
+model CharacterAttribute {
+  id          String    @id @default(uuid())
+  characterId String    @unique
+  character   Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
+  FOR         Int       @default(1)
+  AGI         Int       @default(1)
+  VIG         Int       @default(1)
+  INT         Int       @default(1)
+  PRE         Int       @default(1)
+}
+
+model Skill {
+  id              String   @id @default(uuid())
+  nome            String
+  atributoBase    Atributo
+  permiteMaestria Boolean  @default(true)
+  descricao       String   @default("")
+
+  characterSkills CharacterSkill[]
+  weapons         Weapon[]
+}
+
+model CharacterSkill {
+  id                String    @id @default(uuid())
+  characterId       String
+  character         Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
+  skillId           String
+  skill             Skill     @relation(fields: [skillId], references: [id])
+  treinada          Boolean   @default(false)
+  pontosInvestidos  Int       @default(0)
+
+  @@unique([characterId, skillId])
+}
+
+model Specialization {
+  id                   String   @id @default(uuid())
+  nome                 String
+  hpPorNivel           Int
+  energiaPorNivel      Int
+  bonusAtributos       Json     @default("{\"FOR\":0,\"AGI\":0,\"VIG\":0,\"INT\":0,\"PRE\":0}")
+  habilidadesTreinadas String[] @default([])
+
+  characters  Character[]
+  abilities   SpecializationAbility[]
+}
+
+model Origem {
+  id                   String   @id @default(uuid())
+  nome                 String   @unique
+  descricao            String
+  bonusAtributos       Json     @default("{\"FOR\":0,\"AGI\":0,\"VIG\":0,\"INT\":0,\"PRE\":0}")
+  habilidadesTreinadas String[] @default([])
+
+  characters Character[]
+}
+
+model SpecializationAbility {
+  id               String         @id @default(uuid())
+  specializationId String
+  specialization   Specialization @relation(fields: [specializationId], references: [id])
+  nome             String         @default("")
+  nivelRequerido   Int
+  tipo             String         @default("ativa")
+  custo            String         @default("nenhum")
+  alcance          String         @default("pessoal")
+  duracao          String         @default("imediato")
+  descricao        String
+}
+
+model Aptitude {
+  id            String   @id @default(uuid())
+  nome          String
+  descricao     String
+  prerequisitos Json     @default("[]")
+  modificadores Json     @default("[]")
+
+  characterAptitudes CharacterAptitude[]
+}
+
+model CharacterAptitude {
+  id               String    @id @default(uuid())
+  characterId      String
+  character        Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
+  aptitudeId       String
+  aptitude         Aptitude  @relation(fields: [aptitudeId], references: [id])
+  adquiridaNoNivel Int
+
+  @@unique([characterId, aptitudeId])
+}
+
+model Technique {
+  id              String    @id @default(uuid())
+  characterId     String
+  character       Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
+  nome            String
+  nivel           Int       @default(0)
+  custoEnergia    Int
+  atributoBase    Atributo
+  descricaoLivre  String    @default("")
+  tipoDano        TipoDano?
+  createdAt       DateTime  @default(now())
+}
+
+model TechniqueTemplate {
+  id             String    @id @default(uuid())
+  nome           String
+  nivel          Int       @default(1)
+  tipoDano       TipoDano?
+  cd             Int?
+  atributoBase   Atributo
+  custoEnergia   Int       @default(0)
+  descricaoLivre String    @default("")
+  isSystem       Boolean   @default(false)
+  createdById    String?
+  createdBy      User?     @relation(fields: [createdById], references: [id], onDelete: SetNull)
+  createdAt      DateTime  @default(now())
+}
+
+model Weapon {
+  id                 String    @id @default(uuid())
+  characterId        String
+  character          Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
+  nome               String
+  skillId            String?
+  skill              Skill?    @relation(fields: [skillId], references: [id])
+  damageDice         String
+  damageType         TipoDano
+  threatRange        Int       @default(20)
+  criticalMultiplier Int       @default(2)
+  createdAt          DateTime  @default(now())
+}
+
+model WeaponTemplate {
+  id                 String  @id @default(uuid())
+  nome               String  @unique
+  categoria          String
+  damageDice         String
+  tipoDano           String
+  distancia          String
+  duasMaos           Boolean @default(false)
+  requiresMarcial    Boolean @default(false)
+  regraEspecial      String?
+  threatRange        Int     @default(20)
+  criticalMultiplier Int     @default(2)
+}
+
+model LevelProgression {
+  id             String  @id @default(uuid())
+  level          Int     @unique
+  xpRequired     Int
+  ganhoAtributo  Boolean @default(false)
+  ganhoMaestria  Boolean @default(false)
+}
+
+model Combat {
+  id               String      @id @default(uuid())
+  campaignId       String
+  campaign         Campaign    @relation(fields: [campaignId], references: [id])
+  state            CombatState @default(IDLE)
+  roundNumber      Int         @default(1)
+  currentTurnIndex Int         @default(0)
+  createdAt        DateTime    @default(now())
+  finishedAt       DateTime?
+
+  participants CombatParticipant[]
+  logs         CombatLog[]
+}
+
+model CombatParticipant {
+  id           String    @id @default(uuid())
+  combatId     String
+  combat       Combat    @relation(fields: [combatId], references: [id])
+  characterId  String?
+  character    Character? @relation(fields: [characterId], references: [id])
+  npcId        String?
+  npc          Npc?      @relation(fields: [npcId], references: [id])
+  initiative   Int       @default(0)
+  hpAtual      Int
+  energiaAtual Int
+  ordem        Int       @default(0)
+  isDefeated   Boolean   @default(false)
+
+  conditions   ParticipantCondition[]
+}
+
+model CombatLog {
+  id           String     @id @default(uuid())
+  campaignId   String?
+  campaign     Campaign?  @relation(fields: [campaignId], references: [id])
+  combatId     String?
+  combat       Combat?    @relation(fields: [combatId], references: [id])
+  actor        String
+  actionType   ActionType
+  diceResult   Int?
+  total        Int?
+  target       String?
+  wasOutOfTurn Boolean    @default(false)
+  details      Json?
+  timestamp    DateTime   @default(now())
+}
+
+model Npc {
+  id           String    @id @default(uuid())
+  campaignId   String
+  campaign     Campaign  @relation(fields: [campaignId], references: [id])
+  nome         String
+  isSimplified Boolean   @default(false)
+
+  hpAtual      Int       @default(10)
+  hpMax        Int       @default(10)
+  energiaAtual Int       @default(5)
+  energiaMax   Int       @default(5)
+  bonusAtaque  Int       @default(0)
+  defesa       Int       @default(10)
+  danoFixo     Int       @default(0)
+  tipoDano     TipoDano  @default(FISICO)
+
+  nivel            Int       @default(1)
+  maestriaBonus    Int       @default(2)
+
+  attributes   NpcAttribute?
+  combatParticipations CombatParticipant[]
+}
+
+model NpcAttribute {
+  id    String @id @default(uuid())
+  npcId String @unique
+  npc   Npc    @relation(fields: [npcId], references: [id], onDelete: Cascade)
+  FOR   Int    @default(1)
+  AGI   Int    @default(1)
+  VIG   Int    @default(1)
+  INT   Int    @default(1)
+  PRE   Int    @default(1)
+}
+
+model Condition {
+  id              String @id @default(uuid())
+  nome            String
+  descricao       String
+  duracaoRodadas  Int
+  efeitoMecanico  Json   @default("[]")
+
+  participantConditions ParticipantCondition[]
+}
+
+model ParticipantCondition {
+  id               String            @id @default(uuid())
+  participantId    String
+  participant      CombatParticipant @relation(fields: [participantId], references: [id], onDelete: Cascade)
+  conditionId      String
+  condition        Condition         @relation(fields: [conditionId], references: [id])
+  rodadasRestantes Int
+  appliedAt        DateTime          @default(now())
+}
