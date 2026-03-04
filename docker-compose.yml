@@ -1,15 +1,39 @@
 version: '3.8'
 
 services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: rpg_backend
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-system_rpg}?schema=public
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-7d}
+      PORT: 3001
+      FRONTEND_URL: ${FRONTEND_URL}
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.rpg-backend.rule=Host(`api.dailydev.com.br`)"
+      - "traefik.http.routers.rpg-backend.entrypoints=web,websecure"
+      - "traefik.http.routers.rpg-backend.tls.certresolver=letsencrypt"
+      - "traefik.http.services.rpg-backend.loadbalancer.server.port=3001"
+    networks:
+      - web
+      - backend
+
   postgres:
     image: postgres:16-alpine
     container_name: rpg_postgres
+    restart: unless-stopped
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-postgres}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
       POSTGRES_DB: ${POSTGRES_DB:-system_rpg}
-    ports:
-      - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
@@ -17,24 +41,14 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-
-  backend:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: rpg_backend
-    environment:
-      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-system_rpg}?schema=public
-      JWT_SECRET: ${JWT_SECRET}
-      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-7d}
-      PORT: 3001
-      FRONTEND_URL: ${FRONTEND_URL}
-    ports:
-      - "3001:3001"
-    depends_on:
-      postgres:
-        condition: service_healthy
-    restart: unless-stopped
+    networks:
+      - backend
 
 volumes:
   postgres_data:
+
+networks:
+  web:
+    external: true
+  backend:
+    internal: true
