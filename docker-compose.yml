@@ -33,7 +33,7 @@ services:
       JWT_SECRET: feiticeiros-e-maldicoes-secret-key-2026
       JWT_EXPIRES_IN: 7d
       PORT: 3001
-      FRONTEND_URL: https://dailydev.com.br
+      FRONTEND_URL: https://cris-rpg-system.vercel.app
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.rpg-backend.rule=Host(`api.dailydev.com.br`)"
