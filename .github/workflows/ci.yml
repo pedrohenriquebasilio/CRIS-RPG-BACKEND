@@ -54,12 +54,12 @@ jobs:
             fi
 
             cat > .env << 'EOF'
-            POSTGRES_USER=${{ secrets.POSTGRES_USER }}
-            POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}
-            POSTGRES_DB=${{ secrets.POSTGRES_DB }}
-            JWT_SECRET=${{ secrets.JWT_SECRET }}
+            POSTGRES_USER=postgres
+            POSTGRES_PASSWORD=postgres
+            POSTGRES_DB=system_rpg
+            JWT_SECRET=feiticeiros-e-maldicoes-secret-key-2026
             JWT_EXPIRES_IN=7d
-            FRONTEND_URL=${{ secrets.FRONTEND_URL }}
+            FRONTEND_URL=https://cris-rpg-system.vercel.app
             EOF
 
             docker compose up -d --build postgres backend
