@@ -15,56 +15,62 @@ async function main() {
   const specializations = [
     {
       nome: 'Lutador',
-      hpPorNivel: 6,      // 1d10 ou 6 por nível (N1: 12 + VIG)
-      energiaPorNivel: 4, // 4 PE por nível
+      hpBase: 12,
+      hpPorNivel: 6,
+      energiaPorNivel: 4,
+      maestriaInicial: 3, // Atletismo OU Acrobacia (1) + 2 quaisquer = 3 slots livres
       bonusAtributos: { FOR: 0, AGI: 0, VIG: 0, INT: 0, PRE: 0 },
       habilidadesTreinadas: ['Fortitude', 'Luta'],
-      // Também recebe Atletismo OU Acrobacia (escolha) + 2 quaisquer → player adiciona
       abilities: [],
     },
     {
       nome: 'Especialista em Combate',
-      hpPorNivel: 6,      // 1d10 ou 6 por nível (N1: 12 + VIG)
-      energiaPorNivel: 4, // 4 PE por nível
+      hpBase: 12,
+      hpPorNivel: 6,
+      energiaPorNivel: 4,
+      maestriaInicial: 4, // Atletismo OU Acrobacia (1) + 3 quaisquer = 4 slots livres
       bonusAtributos: { FOR: 0, AGI: 0, VIG: 0, INT: 0, PRE: 0 },
       habilidadesTreinadas: ['Luta', 'Pontaria', 'Fortitude'],
-      // Também recebe Atletismo OU Acrobacia + 3 quaisquer → player adiciona
       abilities: [],
     },
     {
       nome: 'Especialista em Técnica',
-      hpPorNivel: 5,      // 1d8 ou 5 por nível (N1: 10 + VIG)
-      energiaPorNivel: 6, // 6 PE por nível + soma mod. de atributo de técnica no máximo
+      hpBase: 10,
+      hpPorNivel: 5,
+      energiaPorNivel: 6,
+      maestriaInicial: 3, // 3 quaisquer
       bonusAtributos: { FOR: 0, AGI: 0, VIG: 0, INT: 0, PRE: 0 },
       habilidadesTreinadas: ['Feitiçaria', 'Ocultismo', 'Vontade'],
-      // Também recebe 3 quaisquer → player adiciona
       abilities: [],
     },
     {
       nome: 'Controlador',
-      hpPorNivel: 5,      // 1d8 ou 5 por nível (N1: 10 + VIG)
-      energiaPorNivel: 5, // 5 PE por nível + soma mod. de atributo de técnica no máximo
+      hpBase: 10,
+      hpPorNivel: 5,
+      energiaPorNivel: 5,
+      maestriaInicial: 2, // 2 quaisquer
       bonusAtributos: { FOR: 0, AGI: 0, VIG: 0, INT: 0, PRE: 0 },
       habilidadesTreinadas: ['Percepção', 'Intuição', 'Vontade'],
-      // Também recebe 2 quaisquer → player adiciona
       abilities: [],
     },
     {
       nome: 'Suporte',
-      hpPorNivel: 5,      // 1d8 ou 5 por nível (N1: 10 + VIG)
-      energiaPorNivel: 5, // 5 PE por nível + soma mod. de atributo de técnica no máximo
+      hpBase: 10,
+      hpPorNivel: 5,
+      energiaPorNivel: 5,
+      maestriaInicial: 3, // 3 quaisquer
       bonusAtributos: { FOR: 0, AGI: 0, VIG: 0, INT: 0, PRE: 0 },
       habilidadesTreinadas: ['Medicina', 'Vontade'],
-      // Também recebe 3 quaisquer → player adiciona
       abilities: [],
     },
     {
       nome: 'Restringido',
-      hpPorNivel: 7,      // 1d12 ou 7 por nível (N1: 16 + VIG)
-      energiaPorNivel: 0, // Sem energia amaldiçoada — usa Pontos de Vigor (4 por nível, gerenciados manualmente)
+      hpBase: 16,
+      hpPorNivel: 7,
+      energiaPorNivel: 0,
+      maestriaInicial: 4, // 4 quaisquer (exceto Feitiçaria)
       bonusAtributos: { FOR: 0, AGI: 0, VIG: 0, INT: 0, PRE: 0 },
       habilidadesTreinadas: ['Fortitude', 'Luta', 'Pontaria'],
-      // Também recebe 4 quaisquer (exceto Feitiçaria) → player adiciona
       abilities: [],
     },
   ];

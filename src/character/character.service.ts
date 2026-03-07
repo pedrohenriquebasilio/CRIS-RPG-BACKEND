@@ -58,7 +58,7 @@ export class CharacterService {
         where: { id: data.specializationId },
       });
       if (!specialization) throw new NotFoundException('Specialization not found');
-      hpMax = specialization.hpPorNivel;
+      hpMax = specialization.hpBase > 0 ? specialization.hpBase : specialization.hpPorNivel;
       energiaMax = specialization.energiaPorNivel;
     }
 
@@ -606,11 +606,17 @@ export class CharacterService {
     if (resolvedSpecId) {
       const spec = await this.prisma.specialization.findUnique({ where: { id: resolvedSpecId } });
       if (spec && character) {
-        updateData.hpMax = spec.hpPorNivel * character.nivel;
+        updateData.hpMax = spec.hpBase > 0
+          ? spec.hpBase + spec.hpPorNivel * (character.nivel - 1)
+          : spec.hpPorNivel * character.nivel;
         updateData.energiaMax = spec.energiaPorNivel * character.nivel;
         // Clamp current values to new max
         if (character.hpAtual > updateData.hpMax) updateData.hpAtual = updateData.hpMax;
         if (character.energiaAtual > updateData.energiaMax) updateData.energiaAtual = updateData.energiaMax;
+        // Apply initial maestria slots from class (only if current is lower)
+        if (spec.maestriaInicial > character.maestriaBonus) {
+          updateData.maestriaBonus = spec.maestriaInicial;
+        }
       }
     }
 
@@ -624,6 +630,22 @@ export class CharacterService {
       where: { characterId },
       data: attrBonuses,
     });
+
+    // Auto-train fixed skills from the selected specialization
+    if (specId) {
+      const spec = await this.prisma.specialization.findUnique({ where: { id: specId } });
+      if (spec && spec.habilidadesTreinadas.length > 0) {
+        for (const skillNome of spec.habilidadesTreinadas) {
+          const skill = await this.prisma.skill.findFirst({ where: { nome: skillNome } });
+          if (!skill) continue;
+          await this.prisma.characterSkill.upsert({
+            where: { characterId_skillId: { characterId, skillId: skill.id } },
+            create: { characterId, skillId: skill.id, treinada: true, pontosInvestidos: 5 },
+            update: { treinada: true, pontosInvestidos: 5 },
+          });
+        }
+      }
+    }
 
     return this.findOne(characterId);
   }
