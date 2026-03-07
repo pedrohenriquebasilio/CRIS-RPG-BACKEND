@@ -383,40 +383,67 @@ async function main() {
     },
   ];
 
-  // ===== LÓGICA DE EXECUÇÃO =====
-  // Limpeza de tabelas (ordem respeita foreign keys)
-  await prisma.specializationAbility.deleteMany();
-  await prisma.specialization.deleteMany();
-  await prisma.characterSkill.deleteMany();
-  await prisma.skill.deleteMany();
-  await prisma.origem.deleteMany();
-  await prisma.weaponTemplate.deleteMany();
+  // ===== LÓGICA DE EXECUÇÃO (idempotente — nunca apaga dados de jogadores) =====
 
+  // Skills: upsert manual por nome (não tem @unique no schema)
   for (const s of skills) {
-    await prisma.skill.create({ data: s });
+    const existing = await prisma.skill.findFirst({ where: { nome: s.nome } });
+    if (existing) {
+      await prisma.skill.update({ where: { id: existing.id }, data: { atributoBase: s.atributoBase, permiteMaestria: s.permiteMaestria, descricao: s.descricao ?? '' } });
+    } else {
+      await prisma.skill.create({ data: s });
+    }
   }
 
+  // Especializações: upsert + recriar abilities (nunca toca em characterSkill)
   for (const spec of specializations) {
-    await prisma.specialization.create({
-      data: {
-        nome: spec.nome,
-        hpPorNivel: spec.hpPorNivel,
-        energiaPorNivel: spec.energiaPorNivel,
-        bonusAtributos: spec.bonusAtributos,
-        habilidadesTreinadas: spec.habilidadesTreinadas,
-        abilities: {
-          create: spec.abilities,
+    const existing = await prisma.specialization.findFirst({ where: { nome: spec.nome } });
+    if (existing) {
+      await prisma.specializationAbility.deleteMany({ where: { specializationId: existing.id } });
+      await prisma.specialization.update({
+        where: { id: existing.id },
+        data: {
+          hpBase: spec.hpBase ?? 0,
+          hpPorNivel: spec.hpPorNivel,
+          energiaPorNivel: spec.energiaPorNivel,
+          maestriaInicial: spec.maestriaInicial ?? 2,
+          bonusAtributos: spec.bonusAtributos,
+          habilidadesTreinadas: spec.habilidadesTreinadas,
+          abilities: { create: spec.abilities },
         },
-      },
+      });
+    } else {
+      await prisma.specialization.create({
+        data: {
+          nome: spec.nome,
+          hpBase: spec.hpBase ?? 0,
+          hpPorNivel: spec.hpPorNivel,
+          energiaPorNivel: spec.energiaPorNivel,
+          maestriaInicial: spec.maestriaInicial ?? 2,
+          bonusAtributos: spec.bonusAtributos,
+          habilidadesTreinadas: spec.habilidadesTreinadas,
+          abilities: { create: spec.abilities },
+        },
+      });
+    }
+  }
+
+  // Origens: upsert por nome (campo @unique)
+  for (const o of origens) {
+    await prisma.origem.upsert({
+      where: { nome: o.nome },
+      update: { descricao: o.descricao, bonusAtributos: o.bonusAtributos, habilidadesTreinadas: o.habilidadesTreinadas },
+      create: o,
     });
   }
 
-  for (const o of origens) {
-    await prisma.origem.create({ data: o });
-  }
-
+  // WeaponTemplates: upsert por nome (campo @unique)
   for (const w of weaponTemplates) {
-    await prisma.weaponTemplate.create({ data: w });
+    await prisma.weaponTemplate.upsert({
+      where: { nome: w.nome },
+      update: w,
+      create: w,
+    });
   }
 
   console.log('Seed finalizada com sucesso.');

@@ -13,4 +13,5 @@ RUN ls dist/main.js
 
 EXPOSE 3001
 
-CMD ["sh", "-c", "npx prisma migrate deploy && npx prisma db seed && node dist/main"]
+# seed roda separado (npm run prisma:seed) — nunca aqui, pois usa deleteMany
+CMD ["sh", "-c", "npx prisma migrate deploy && node dist/main"]
