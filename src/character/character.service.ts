@@ -449,7 +449,23 @@ export class CharacterService {
       });
     }
 
-    return this.checkLevelUp(characterId, masterId, combatId);
+    const result = await this.checkLevelUp(characterId, masterId, combatId);
+
+    // Emit XP + level state to character's campaign room
+    this.gateway.emitCharacterUpdate(character.campaignId, {
+      id: characterId,
+      xpAtual: result.xpAtual,
+      nivel: result.nivel,
+      hpAtual: result.hpAtual,
+      hpMax: result.hpMax,
+      energiaAtual: result.energiaAtual,
+      energiaMax: result.energiaMax,
+      maestriaBonus: result.maestriaBonus,
+      pendingAptidaoSlots: result.pendingAptidaoSlots,
+      pendingAtributoPoints: result.pendingAtributoPoints,
+    });
+
+    return result;
   }
 
   async checkLevelUp(characterId: string, masterId?: string, combatId?: string) {
@@ -501,6 +517,14 @@ export class CharacterService {
         },
       });
     }
+
+    // Emit level up notification
+    this.gateway.emitLevelUp(character.campaignId, {
+      id: characterId,
+      nome: character.nome,
+      nivelAnterior: character.nivel,
+      novoNivel: nextLevel,
+    });
 
     return this.checkLevelUp(characterId, masterId, combatId);
   }

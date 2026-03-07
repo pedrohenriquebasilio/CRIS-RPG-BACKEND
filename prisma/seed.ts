@@ -498,6 +498,31 @@ async function main() {
     },
   ];
 
+  // ===== PROGRESSÃO DE NÍVEL =====
+  // xpRequired = XP total acumulado para atingir aquele nível
+  // Alinhado com XP_TABLE do frontend: nível X → precisa de XP_TABLE[X-1] acumulado
+  const levelProgressions = [
+    { level: 2,  xpRequired: 300,    ganhoAtributo: false, ganhoMaestria: false },
+    { level: 3,  xpRequired: 900,    ganhoAtributo: false, ganhoMaestria: false },
+    { level: 4,  xpRequired: 2700,   ganhoAtributo: true,  ganhoMaestria: false },
+    { level: 5,  xpRequired: 6500,   ganhoAtributo: false, ganhoMaestria: true  },
+    { level: 6,  xpRequired: 14000,  ganhoAtributo: false, ganhoMaestria: false },
+    { level: 7,  xpRequired: 23000,  ganhoAtributo: false, ganhoMaestria: false },
+    { level: 8,  xpRequired: 34000,  ganhoAtributo: true,  ganhoMaestria: false },
+    { level: 9,  xpRequired: 48000,  ganhoAtributo: false, ganhoMaestria: true  },
+    { level: 10, xpRequired: 64000,  ganhoAtributo: false, ganhoMaestria: false },
+    { level: 11, xpRequired: 85000,  ganhoAtributo: false, ganhoMaestria: false },
+    { level: 12, xpRequired: 100000, ganhoAtributo: true,  ganhoMaestria: false },
+    { level: 13, xpRequired: 120000, ganhoAtributo: false, ganhoMaestria: true  },
+    { level: 14, xpRequired: 140000, ganhoAtributo: false, ganhoMaestria: false },
+    { level: 15, xpRequired: 165000, ganhoAtributo: false, ganhoMaestria: false },
+    { level: 16, xpRequired: 195000, ganhoAtributo: true,  ganhoMaestria: false },
+    { level: 17, xpRequired: 225000, ganhoAtributo: false, ganhoMaestria: true  },
+    { level: 18, xpRequired: 265000, ganhoAtributo: false, ganhoMaestria: false },
+    { level: 19, xpRequired: 305000, ganhoAtributo: true,  ganhoMaestria: false },
+    { level: 20, xpRequired: 355000, ganhoAtributo: false, ganhoMaestria: false },
+  ];
+
   // ===== LÓGICA DE EXECUÇÃO (idempotente — nunca apaga dados de jogadores) =====
 
   // Skills: upsert manual por nome (não tem @unique no schema)
@@ -573,6 +598,15 @@ async function main() {
       where: { nome: w.nome },
       update: w,
       create: w,
+    });
+  }
+
+  // LevelProgression: upsert por level (campo @unique)
+  for (const lp of levelProgressions) {
+    await prisma.levelProgression.upsert({
+      where: { level: lp.level },
+      update: { xpRequired: lp.xpRequired, ganhoAtributo: lp.ganhoAtributo, ganhoMaestria: lp.ganhoMaestria },
+      create: lp,
     });
   }
 
