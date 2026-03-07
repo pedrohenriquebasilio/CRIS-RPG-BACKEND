@@ -53,15 +53,14 @@ jobs:
               git clean -fd
             fi
 
-            cat > .env << 'EOF'
-            POSTGRES_USER=postgres
-            POSTGRES_PASSWORD=postgres
-            POSTGRES_DB=system_rpg
-            JWT_SECRET=feiticeiros-e-maldicoes-secret-key-2026
+            cat > .env << EOF
+            DATABASE_URL=${{ secrets.DATABASE_URL }}
+            JWT_SECRET=${{ secrets.JWT_SECRET }}
             JWT_EXPIRES_IN=7d
+            PORT=3001
             FRONTEND_URL=https://cris-rpg-system.vercel.app
             EOF
 
             docker compose build --no-cache backend
-            docker compose up -d postgres backend
+            docker compose up -d backend
             docker image prune -f
