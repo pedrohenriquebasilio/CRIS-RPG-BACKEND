@@ -489,7 +489,7 @@ export class CharacterService {
       data: update,
       select: { id: true, hpAtual: true, hpMax: true, energiaAtual: true, energiaMax: true, maestriaBonus: true },
     });
-    this.gateway.emitCharacterUpdate(character.campaignId, { id: characterId, ...updated });
+    this.gateway.emitCharacterUpdate(character.campaignId, updated);
     return updated;
   }
 
