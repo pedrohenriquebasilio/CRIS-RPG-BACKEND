@@ -9,6 +9,8 @@ services:
     restart: unless-stopped
     env_file:
       - .env
+    ports:
+      - "3001:3001"
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.rpg-backend.rule=Host(`api.dailydev.com.br`)"

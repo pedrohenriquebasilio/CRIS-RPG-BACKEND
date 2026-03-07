@@ -7,9 +7,7 @@ RUN npm ci
 
 COPY . .
 
-RUN npx prisma generate
-RUN npx nest build
-RUN ls -la dist/
+RUN npm run build
 
 EXPOSE 3001
 
