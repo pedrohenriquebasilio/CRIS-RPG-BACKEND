@@ -416,9 +416,10 @@ async function main() {
   ];
 
   // ===== LÓGICA DE EXECUÇÃO =====
-  // Limpeza de tabelas (Opcional, mas recomendado para seed limpa)
+  // Limpeza de tabelas (ordem respeita foreign keys)
   await prisma.specializationAbility.deleteMany();
   await prisma.specialization.deleteMany();
+  await prisma.characterSkill.deleteMany();
   await prisma.skill.deleteMany();
   await prisma.origem.deleteMany();
   await prisma.weaponTemplate.deleteMany();
