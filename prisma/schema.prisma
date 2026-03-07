@@ -111,16 +111,18 @@ model Character {
 }
 
 model CharacterAbility {
-  id          String    @id @default(uuid())
-  characterId String
-  character   Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
-  nome        String
-  tipo        String    @default("ativa")
-  custo       String    @default("nenhum")
-  alcance     String    @default("pessoal")
-  duracao     String    @default("imediato")
-  descricao   String    @default("")
-  createdAt   DateTime  @default(now())
+  id           String    @id @default(uuid())
+  characterId  String
+  character    Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
+  nome         String
+  tipo         String    @default("ativa")
+  custo        String    @default("nenhum")
+  alcance      String    @default("pessoal")
+  duracao      String    @default("imediato")
+  descricao    String    @default("")
+  damageDice   String?
+  atributoBase String?
+  createdAt    DateTime  @default(now())
 }
 
 model CharacterAttribute {

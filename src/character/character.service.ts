@@ -724,7 +724,7 @@ export class CharacterService {
 
   async addAbility(
     characterId: string,
-    dto: { nome: string; tipo?: string; custo?: string; alcance?: string; duracao?: string; descricao?: string },
+    dto: { nome: string; tipo?: string; custo?: string; alcance?: string; duracao?: string; descricao?: string; damageDice?: string; atributoBase?: string },
     userId: string,
   ) {
     await this.checkOwnership(characterId, userId);
@@ -737,6 +737,8 @@ export class CharacterService {
         alcance: dto.alcance ?? 'pessoal',
         duracao: dto.duracao ?? 'imediato',
         descricao: dto.descricao ?? '',
+        damageDice: dto.damageDice ?? null,
+        atributoBase: dto.atributoBase ?? null,
       },
     });
   }
