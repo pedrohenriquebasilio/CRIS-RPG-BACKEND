@@ -50,63 +50,63 @@ enum ActionType {
 }
 
 model User {
-  id         String    @id @default(uuid())
-  email      String    @unique
-  password   String
-  role       Role
-  createdAt  DateTime  @default(now())
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  role      Role
+  createdAt DateTime @default(now())
 
-  campaigns           Campaign[]
-  characters          Character[]
-  techniqueTemplates  TechniqueTemplate[]
+  campaigns          Campaign[]
+  characters         Character[]
+  techniqueTemplates TechniqueTemplate[]
 }
 
 model Campaign {
-  id             String    @id @default(uuid())
+  id             String   @id @default(uuid())
   name           String
   masterId       String
-  master         User      @relation(fields: [masterId], references: [id])
-  isActiveCombat Boolean   @default(false)
-  inviteCode     String    @unique @default(uuid())
-  createdAt      DateTime  @default(now())
+  master         User     @relation(fields: [masterId], references: [id])
+  isActiveCombat Boolean  @default(false)
+  inviteCode     String   @unique @default(uuid())
+  createdAt      DateTime @default(now())
 
-  characters     Character[]
-  combats        Combat[]
-  npcs           Npc[]
-  logs           CombatLog[]
+  characters Character[]
+  combats    Combat[]
+  npcs       Npc[]
+  logs       CombatLog[]
 }
 
 model Character {
-  id               String    @id @default(uuid())
-  campaignId       String
-  campaign         Campaign  @relation(fields: [campaignId], references: [id])
-  userId           String
-  user             User      @relation(fields: [userId], references: [id])
-  nome             String
-  origemId         String?
-  origemRelacao    Origem?   @relation(fields: [origemId], references: [id])
-  specializationId String?
-  specialization   Specialization? @relation(fields: [specializationId], references: [id])
-  nivel            Int       @default(1)
-  xpAtual          Int       @default(0)
-  hpAtual          Int       @default(10)
-  hpMax            Int       @default(10)
-  energiaAtual     Int       @default(5)
-  energiaMax       Int       @default(5)
-  maestriaBonus    Int       @default(2)
-  isApproved       Boolean   @default(false)
-  isMob            Boolean   @default(false)
-  isActive         Boolean   @default(true)
-  pendingAptidaoSlots Int    @default(0)
-  pendingAtributoPoints Int  @default(0)
-  createdAt        DateTime  @default(now())
+  id                    String          @id @default(uuid())
+  campaignId            String
+  campaign              Campaign        @relation(fields: [campaignId], references: [id])
+  userId                String
+  user                  User            @relation(fields: [userId], references: [id])
+  nome                  String
+  origemId              String?
+  origemRelacao         Origem?         @relation(fields: [origemId], references: [id])
+  specializationId      String?
+  specialization        Specialization? @relation(fields: [specializationId], references: [id])
+  nivel                 Int             @default(1)
+  xpAtual               Int             @default(0)
+  hpAtual               Int             @default(10)
+  hpMax                 Int             @default(10)
+  energiaAtual          Int             @default(5)
+  energiaMax            Int             @default(5)
+  maestriaBonus         Int             @default(2)
+  isApproved            Boolean         @default(false)
+  isMob                 Boolean         @default(false)
+  isActive              Boolean         @default(true)
+  pendingAptidaoSlots   Int             @default(0)
+  pendingAtributoPoints Int             @default(0)
+  createdAt             DateTime        @default(now())
 
-  attributes       CharacterAttribute?
-  skills           CharacterSkill[]
-  aptitudes        CharacterAptitude[]
-  techniques       Technique[]
-  weapons          Weapon[]
-  abilities        CharacterAbility[]
+  attributes           CharacterAttribute?
+  skills               CharacterSkill[]
+  aptitudes            CharacterAptitude[]
+  techniques           Technique[]
+  weapons              Weapon[]
+  abilities            CharacterAbility[]
   combatParticipations CombatParticipant[]
 }
 
@@ -146,13 +146,13 @@ model Skill {
 }
 
 model CharacterSkill {
-  id                String    @id @default(uuid())
-  characterId       String
-  character         Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
-  skillId           String
-  skill             Skill     @relation(fields: [skillId], references: [id])
-  treinada          Boolean   @default(false)
-  pontosInvestidos  Int       @default(0)
+  id               String    @id @default(uuid())
+  characterId      String
+  character        Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
+  skillId          String
+  skill            Skill     @relation(fields: [skillId], references: [id])
+  treinada         Boolean   @default(false)
+  pontosInvestidos Int       @default(0)
 
   @@unique([characterId, skillId])
 }
@@ -167,8 +167,8 @@ model Specialization {
   bonusAtributos       Json     @default("{\"FOR\":0,\"AGI\":0,\"VIG\":0,\"INT\":0,\"PRE\":0}")
   habilidadesTreinadas String[] @default([])
 
-  characters  Character[]
-  abilities   SpecializationAbility[]
+  characters Character[]
+  abilities  SpecializationAbility[]
 }
 
 model Origem {
@@ -195,18 +195,18 @@ model SpecializationAbility {
 }
 
 model Aptitude {
-  id                    String   @id @default(uuid())
+  id                    String     @id @default(uuid())
   nome                  String
   descricao             String
-  prerequisitoNivel     Int      @default(1)
+  prerequisitoNivel     Int        @default(1)
   prerequisitoAptidaoId String?
-  prerequisitoAptidao   Aptitude? @relation("AptitudeChain", fields: [prerequisitoAptidaoId], references: [id])
+  prerequisitoAptidao   Aptitude?  @relation("AptitudeChain", fields: [prerequisitoAptidaoId], references: [id])
   aptitudesQuePreciso   Aptitude[] @relation("AptitudeChain")
-  tipo                  String   @default("buff") // "dano", "buff", "cura"
-  cooldown              Int      @default(0) // em rodadas
-  criadoPorUserId       String?  // opcional: quem criou essa aptidão (para rastrear)
-  isSystem              Boolean  @default(false)
-  createdAt             DateTime @default(now())
+  tipo                  String     @default("buff") // "dano", "buff", "cura"
+  cooldown              Int        @default(0) // em rodadas
+  criadoPorUserId       String? // opcional: quem criou essa aptidão (para rastrear)
+  isSystem              Boolean    @default(false)
+  createdAt             DateTime   @default(now())
 
   characterAptitudes CharacterAptitude[]
 }
@@ -225,16 +225,16 @@ model CharacterAptitude {
 }
 
 model Technique {
-  id              String    @id @default(uuid())
-  characterId     String
-  character       Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
-  nome            String
-  nivel           Int       @default(0)
-  custoEnergia    Int
-  atributoBase    Atributo
-  descricaoLivre  String    @default("")
-  tipoDano        TipoDano?
-  createdAt       DateTime  @default(now())
+  id             String    @id @default(uuid())
+  characterId    String
+  character      Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
+  nome           String
+  nivel          Int       @default(0)
+  custoEnergia   Int
+  atributoBase   Atributo
+  descricaoLivre String    @default("")
+  tipoDano       TipoDano?
+  createdAt      DateTime  @default(now())
 }
 
 model TechniqueTemplate {
@@ -283,11 +283,11 @@ model WeaponTemplate {
 }
 
 model LevelProgression {
-  id             String  @id @default(uuid())
-  level          Int     @unique
-  xpRequired     Int
-  ganhoAtributo  Boolean @default(false)
-  ganhoMaestria  Boolean @default(false)
+  id            String  @id @default(uuid())
+  level         Int     @unique
+  xpRequired    Int
+  ganhoAtributo Boolean @default(false)
+  ganhoMaestria Boolean @default(false)
 }
 
 model Combat {
@@ -305,20 +305,20 @@ model Combat {
 }
 
 model CombatParticipant {
-  id           String    @id @default(uuid())
+  id           String     @id @default(uuid())
   combatId     String
-  combat       Combat    @relation(fields: [combatId], references: [id])
+  combat       Combat     @relation(fields: [combatId], references: [id])
   characterId  String?
   character    Character? @relation(fields: [characterId], references: [id])
   npcId        String?
-  npc          Npc?      @relation(fields: [npcId], references: [id])
-  initiative   Int       @default(0)
+  npc          Npc?       @relation(fields: [npcId], references: [id])
+  initiative   Int        @default(0)
   hpAtual      Int
   energiaAtual Int
-  ordem        Int       @default(0)
-  isDefeated   Boolean   @default(false)
+  ordem        Int        @default(0)
+  isDefeated   Boolean    @default(false)
 
-  conditions   ParticipantCondition[]
+  conditions ParticipantCondition[]
 }
 
 model CombatLog {
@@ -338,25 +338,25 @@ model CombatLog {
 }
 
 model Npc {
-  id           String    @id @default(uuid())
+  id           String   @id @default(uuid())
   campaignId   String
-  campaign     Campaign  @relation(fields: [campaignId], references: [id])
+  campaign     Campaign @relation(fields: [campaignId], references: [id])
   nome         String
-  isSimplified Boolean   @default(false)
+  isSimplified Boolean  @default(false)
 
-  hpAtual      Int       @default(10)
-  hpMax        Int       @default(10)
-  energiaAtual Int       @default(5)
-  energiaMax   Int       @default(5)
-  bonusAtaque  Int       @default(0)
-  defesa       Int       @default(10)
-  danoFixo     Int       @default(0)
-  tipoDano     TipoDano  @default(FISICO)
+  hpAtual      Int      @default(10)
+  hpMax        Int      @default(10)
+  energiaAtual Int      @default(5)
+  energiaMax   Int      @default(5)
+  bonusAtaque  Int      @default(0)
+  defesa       Int      @default(10)
+  danoFixo     Int      @default(0)
+  tipoDano     TipoDano @default(FISICO)
 
-  nivel            Int       @default(1)
-  maestriaBonus    Int       @default(2)
+  nivel         Int @default(1)
+  maestriaBonus Int @default(2)
 
-  attributes   NpcAttribute?
+  attributes           NpcAttribute?
   combatParticipations CombatParticipant[]
 }
 
@@ -372,11 +372,11 @@ model NpcAttribute {
 }
 
 model Condition {
-  id              String @id @default(uuid())
-  nome            String
-  descricao       String
-  duracaoRodadas  Int
-  efeitoMecanico  Json   @default("[]")
+  id             String @id @default(uuid())
+  nome           String
+  descricao      String
+  duracaoRodadas Int
+  efeitoMecanico Json   @default("[]")
 
   participantConditions ParticipantCondition[]
 }
