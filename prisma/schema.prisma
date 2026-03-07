@@ -195,11 +195,18 @@ model SpecializationAbility {
 }
 
 model Aptitude {
-  id            String   @id @default(uuid())
-  nome          String
-  descricao     String
-  prerequisitos Json     @default("[]")
-  modificadores Json     @default("[]")
+  id                    String   @id @default(uuid())
+  nome                  String
+  descricao             String
+  prerequisitoNivel     Int      @default(1)
+  prerequisitoAptidaoId String?
+  prerequisitoAptidao   Aptitude? @relation("AptitudeChain", fields: [prerequisitoAptidaoId], references: [id])
+  aptitudesQuePreciso   Aptitude[] @relation("AptitudeChain")
+  tipo                  String   @default("buff") // "dano", "buff", "cura"
+  cooldown              Int      @default(0) // em rodadas
+  criadoPorUserId       String?  // opcional: quem criou essa aptidão (para rastrear)
+  isSystem              Boolean  @default(false)
+  createdAt             DateTime @default(now())
 
   characterAptitudes CharacterAptitude[]
 }
@@ -209,8 +216,10 @@ model CharacterAptitude {
   characterId      String
   character        Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
   aptitudeId       String
-  aptitude         Aptitude  @relation(fields: [aptitudeId], references: [id])
+  aptitude         Aptitude  @relation(fields: [aptitudeId], references: [id], onDelete: Cascade)
   adquiridaNoNivel Int
+  ativo            Boolean   @default(false)
+  cooldownRestante Int       @default(0)
 
   @@unique([characterId, aptitudeId])
 }

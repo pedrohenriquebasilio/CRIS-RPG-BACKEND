@@ -18,60 +18,166 @@ async function main() {
       hpBase: 12,
       hpPorNivel: 6,
       energiaPorNivel: 4,
-      maestriaInicial: 3, // Atletismo OU Acrobacia (1) + 2 quaisquer = 3 slots livres
+      maestriaInicial: 3,
       bonusAtributos: { FOR: 0, AGI: 0, VIG: 0, INT: 0, PRE: 0 },
       habilidadesTreinadas: ['Fortitude', 'Luta'],
-      abilities: [],
+      abilities: [
+        {
+          nivelRequerido: 1,
+          tipo: 'passiva',
+          custo: 'nenhum',
+          alcance: 'pessoal',
+          duracao: 'passiva',
+          nome: 'Mestre da Luta',
+          descricao:
+            'Você é um mestre da luta, dedicando-se ao desenvolvimento do seu corpo e ao manejo de armas marciais. Desferir golpes rápidos com o seu corpo. Quando realizar um ataque desarmado ou com uma arma marcial, você pode realizar um ataque desarmado como uma ação bônus.',
+        },
+        {
+          nivelRequerido: 1,
+          tipo: 'passiva',
+          custo: 'nenhum',
+          alcance: 'pessoal',
+          duracao: 'passiva',
+          nome: 'Empolgação',
+          descricao:
+            'Uma boa luta é empolgante e te motiva a se arriscar mais e mais. Você começa um combate com Nível de Empolgação 1 e, caso acerte pelo menos um ataque durante seu turno, no começo do seu próximo turno você sobe um nível de empolgação, até um máximo de 5 níveis.',
+        },
+      ],
     },
     {
       nome: 'Especialista em Combate',
       hpBase: 12,
       hpPorNivel: 6,
       energiaPorNivel: 4,
-      maestriaInicial: 4, // Atletismo OU Acrobacia (1) + 3 quaisquer = 4 slots livres
+      maestriaInicial: 4,
       bonusAtributos: { FOR: 0, AGI: 0, VIG: 0, INT: 0, PRE: 0 },
       habilidadesTreinadas: ['Luta', 'Pontaria', 'Fortitude'],
-      abilities: [],
+      abilities: [
+        {
+          nivelRequerido: 1,
+          tipo: 'passiva',
+          custo: 'nenhum',
+          alcance: 'pessoal',
+          duracao: 'passiva',
+          nome: 'Repertório do Especialista',
+          descricao:
+            'Como um Especialista em Combate, você pode escolher um estilo principal para seguir em sua especialização. Estilos incluem: Defensivo, Arremessador, Duelista, Interceptador, Protetor, Distante, Duplo e Massivo.',
+        },
+      ],
     },
     {
       nome: 'Especialista em Técnica',
       hpBase: 10,
       hpPorNivel: 5,
       energiaPorNivel: 6,
-      maestriaInicial: 3, // 3 quaisquer
+      maestriaInicial: 3,
       bonusAtributos: { FOR: 0, AGI: 0, VIG: 0, INT: 0, PRE: 0 },
       habilidadesTreinadas: ['Feitiçaria', 'Ocultismo', 'Vontade'],
-      abilities: [],
+      abilities: [
+        {
+          nivelRequerido: 1,
+          tipo: 'passiva',
+          custo: 'nenhum',
+          alcance: 'pessoal',
+          duracao: 'passiva',
+          nome: 'Domínio dos Fundamentos',
+          descricao:
+            'Como um especialista em técnicas, você tem uma maior dominância sobre os fundamentos da energia amaldiçoada e das suas habilidades. Aprenda mudanças de fundamento como Técnica Cruel, Cuidadosa, Distante, Duplicada, Potente, Precisa e Rápida.',
+        },
+      ],
     },
     {
       nome: 'Controlador',
       hpBase: 10,
       hpPorNivel: 5,
       energiaPorNivel: 5,
-      maestriaInicial: 2, // 2 quaisquer
+      maestriaInicial: 2,
       bonusAtributos: { FOR: 0, AGI: 0, VIG: 0, INT: 0, PRE: 0 },
       habilidadesTreinadas: ['Percepção', 'Intuição', 'Vontade'],
-      abilities: [],
+      abilities: [
+        {
+          nivelRequerido: 1,
+          tipo: 'passiva',
+          custo: 'nenhum',
+          alcance: 'pessoal',
+          duracao: 'passiva',
+          nome: 'Treinamento em Controle',
+          descricao:
+            'Você é treinado para controlar maldições - shikigamis - ou criações em combate. Você começa com dois shikigamis ou corpos amaldiçoados à sua escolha. Você pode manter até duas invocações ativas em campo ao mesmo tempo.',
+        },
+      ],
     },
     {
       nome: 'Suporte',
       hpBase: 10,
       hpPorNivel: 5,
       energiaPorNivel: 5,
-      maestriaInicial: 3, // 3 quaisquer
+      maestriaInicial: 3,
       bonusAtributos: { FOR: 0, AGI: 0, VIG: 0, INT: 0, PRE: 0 },
       habilidadesTreinadas: ['Medicina', 'Vontade'],
-      abilities: [],
+      abilities: [
+        {
+          nivelRequerido: 1,
+          tipo: 'ativa',
+          custo: 'ação bônus',
+          alcance: 'toque',
+          duracao: 'imediato',
+          nome: 'Cura',
+          descricao:
+            'Você pode, como uma ação bônus, curar uma criatura em alcance de toque em um valor igual a 2d6 + seu modificador de Carisma ou Sabedoria, uma quantidade de vezes igual ao seu modificador, por descanso curto ou longo.',
+        },
+        {
+          nivelRequerido: 3,
+          tipo: 'passiva',
+          custo: 'nenhum',
+          alcance: 'pessoal',
+          duracao: 'passiva',
+          nome: 'Presença Inspiradora',
+          descricao:
+            'Sua presença inspira aqueles ao seu redor a tentarem seu máximo. Você pode pagar 2 pontos de energia amaldiçoada para fazer com que, durante uma cena, todo aliado dentro de 9 metros de você fique inspirado, recebendo um bônus de +1 em toda rolagem de perícia.',
+        },
+      ],
     },
     {
       nome: 'Restringido',
       hpBase: 16,
       hpPorNivel: 7,
       energiaPorNivel: 0,
-      maestriaInicial: 4, // 4 quaisquer (exceto Feitiçaria)
+      maestriaInicial: 4,
       bonusAtributos: { FOR: 0, AGI: 0, VIG: 0, INT: 0, PRE: 0 },
       habilidadesTreinadas: ['Fortitude', 'Luta', 'Pontaria'],
-      abilities: [],
+      abilities: [
+        {
+          nivelRequerido: 1,
+          tipo: 'passiva',
+          custo: 'nenhum',
+          alcance: 'pessoal',
+          duracao: 'passiva',
+          nome: 'Restrito pelos Céus',
+          descricao:
+            'Para compensar sua falta de energia amaldiçoada, você recebe vários benefícios atrelados ao seu físico maior e aptidão ao combate. Você pode adicionar seu modificador de Força ou de Constituição na sua Classe de Armadura. Você possui Pontos de Vigor em vez de Energia, iniciando com 4 por nível.',
+        },
+        {
+          nivelRequerido: 2,
+          tipo: 'passiva',
+          custo: 'nenhum',
+          alcance: 'pessoal',
+          duracao: 'passiva',
+          nome: 'Ataque Furtivo',
+          descricao:
+            'Uma vez por turno, ao realizar um ataque surpresa você pode adicionar 1d8 ao dano dele. Caso você possua um ou mais aliados em 1,5 metros de você e do alvo, não é necessário ser um ataque surpresa.',
+        },
+        {
+          nivelRequerido: 3,
+          tipo: 'passiva',
+          custo: 'nenhum',
+          alcance: 'pessoal',
+          duracao: 'passiva',
+          nome: 'Esquiva Sobre-humana',
+          descricao:
+            'Você recebe +1 em sua classe de armadura e em rolagens de Reflexos. No nível 9 e 16, esse bônus aumenta em +1.',
+        },
+      ],
     },
   ];
 
@@ -292,7 +398,8 @@ async function main() {
       requiresMarcial: true,
       threatRange: 19,
       criticalMultiplier: 3,
-      descricao: 'Espada japonesa de lâmina curva, símbolo dos feiticeiros de clã.',
+      descricao:
+        'Espada japonesa de lâmina curva, símbolo dos feiticeiros de clã.',
     },
     {
       nome: 'Lança',
@@ -335,7 +442,8 @@ async function main() {
       distancia: 'Curto (9m)',
       duasMaos: true,
       requiresMarcial: true,
-      regraEspecial: 'Disparo em cone: pode atacar todos em linha de 3m à frente.',
+      regraEspecial:
+        'Disparo em cone: pode atacar todos em linha de 3m à frente.',
       descricao: 'Alta potência a curta distância.',
     },
     {
@@ -379,7 +487,8 @@ async function main() {
       duasMaos: true,
       requiresMarcial: false,
       regraEspecial: 'Dano Espiritual — afeta entidades imateriais plenamente.',
-      descricao: 'Arma ritual de cerimônia, forjada para purificação espiritual.',
+      descricao:
+        'Arma ritual de cerimônia, forjada para purificação espiritual.',
     },
   ];
 
@@ -389,7 +498,14 @@ async function main() {
   for (const s of skills) {
     const existing = await prisma.skill.findFirst({ where: { nome: s.nome } });
     if (existing) {
-      await prisma.skill.update({ where: { id: existing.id }, data: { atributoBase: s.atributoBase, permiteMaestria: s.permiteMaestria, descricao: s.descricao ?? '' } });
+      await prisma.skill.update({
+        where: { id: existing.id },
+        data: {
+          atributoBase: s.atributoBase,
+          permiteMaestria: s.permiteMaestria,
+          descricao: s.descricao ?? '',
+        },
+      });
     } else {
       await prisma.skill.create({ data: s });
     }
@@ -397,9 +513,13 @@ async function main() {
 
   // Especializações: upsert + recriar abilities (nunca toca em characterSkill)
   for (const spec of specializations) {
-    const existing = await prisma.specialization.findFirst({ where: { nome: spec.nome } });
+    const existing = await prisma.specialization.findFirst({
+      where: { nome: spec.nome },
+    });
     if (existing) {
-      await prisma.specializationAbility.deleteMany({ where: { specializationId: existing.id } });
+      await prisma.specializationAbility.deleteMany({
+        where: { specializationId: existing.id },
+      });
       await prisma.specialization.update({
         where: { id: existing.id },
         data: {
@@ -432,7 +552,11 @@ async function main() {
   for (const o of origens) {
     await prisma.origem.upsert({
       where: { nome: o.nome },
-      update: { descricao: o.descricao, bonusAtributos: o.bonusAtributos, habilidadesTreinadas: o.habilidadesTreinadas },
+      update: {
+        descricao: o.descricao,
+        bonusAtributos: o.bonusAtributos,
+        habilidadesTreinadas: o.habilidadesTreinadas,
+      },
       create: o,
     });
   }

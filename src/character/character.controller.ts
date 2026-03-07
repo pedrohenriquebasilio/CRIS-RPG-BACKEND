@@ -228,6 +228,34 @@ export class CharacterController {
     return this.characterService.addAptitude(id, aptitudeId, user.id);
   }
 
+  @Post(':id/aptitudes')
+  createAptitude(
+    @Param('id') id: string,
+    @Body() dto: { nome: string; descricao: string; prerequisitoNivel: number; tipo: string; cooldown: number },
+    @CurrentUser() user: any,
+  ) {
+    return this.characterService.createAptitude(id, dto, user.id);
+  }
+
+  @Patch(':id/aptitudes/:aptitudeId/toggle')
+  toggleAptitude(
+    @Param('id') id: string,
+    @Param('aptitudeId') aptitudeId: string,
+    @Body() dto: { ativo: boolean },
+    @CurrentUser() user: any,
+  ) {
+    return this.characterService.toggleAptitude(id, aptitudeId, dto.ativo, user.id);
+  }
+
+  @Delete(':id/aptitudes/:aptitudeId')
+  deleteAptitude(
+    @Param('id') id: string,
+    @Param('aptitudeId') aptitudeId: string,
+    @CurrentUser() user: any,
+  ) {
+    return this.characterService.deleteAptitude(id, aptitudeId, user.id);
+  }
+
   @Post(':id/techniques')
   addTechnique(
     @Param('id') id: string,

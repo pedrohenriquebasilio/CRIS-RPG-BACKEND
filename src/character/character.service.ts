@@ -180,13 +180,18 @@ export class CharacterService {
     const aptitude = await this.prisma.aptitude.findUnique({ where: { id: aptitudeId } });
     if (!aptitude) throw new NotFoundException('Aptitude not found');
 
-    const prerequisites = aptitude.prerequisitos as string[];
-    if (prerequisites.length > 0) {
-      const owned = await this.prisma.characterAptitude.findMany({
-        where: { characterId, aptitudeId: { in: prerequisites } },
+    // Check level requirement
+    if (character.nivel < aptitude.prerequisitoNivel) {
+      throw new BadRequestException(`Character level must be at least ${aptitude.prerequisitoNivel}`);
+    }
+
+    // Check previous aptitude requirement
+    if (aptitude.prerequisitoAptidaoId) {
+      const hasPrereq = await this.prisma.characterAptitude.findUnique({
+        where: { characterId_aptitudeId: { characterId, aptitudeId: aptitude.prerequisitoAptidaoId } },
       });
-      if (owned.length < prerequisites.length) {
-        throw new BadRequestException('Missing aptitude prerequisites');
+      if (!hasPrereq) {
+        throw new BadRequestException('Missing required previous aptitude');
       }
     }
 
@@ -202,6 +207,73 @@ export class CharacterService {
     ]);
 
     return result;
+  }
+
+  async createAptitude(
+    characterId: string,
+    data: { nome: string; descricao: string; prerequisitoNivel: number; tipo: string; cooldown: number },
+    userId: string,
+  ) {
+    const character = await this.checkOwnership(characterId, userId);
+    await this.checkNotInActiveCombat(character.campaignId, userId);
+
+    if (character.nivel < data.prerequisitoNivel) {
+      throw new BadRequestException(`Character level must be at least ${data.prerequisitoNivel}`);
+    }
+
+    // Create global aptitude
+    const aptitude = await this.prisma.aptitude.create({
+      data: {
+        nome: data.nome.trim(),
+        descricao: data.descricao.trim(),
+        prerequisitoNivel: data.prerequisitoNivel,
+        tipo: data.tipo,
+        cooldown: data.cooldown,
+        criadoPorUserId: userId,
+      },
+    });
+
+    // Automatically add it to the creating character
+    const charAptitude = await this.prisma.characterAptitude.create({
+      data: {
+        characterId,
+        aptitudeId: aptitude.id,
+        adquiridaNoNivel: character.nivel,
+        ativo: false,
+      },
+      include: { aptitude: true },
+    });
+
+    return charAptitude;
+  }
+
+  async toggleAptitude(characterId: string, aptitudeId: string, ativo: boolean, userId: string) {
+    const character = await this.checkOwnership(characterId, userId);
+    
+    const charAptitude = await this.prisma.characterAptitude.findFirst({
+      where: { characterId, aptitudeId },
+    });
+    if (!charAptitude) throw new NotFoundException('Aptitude not found');
+
+    const updated = await this.prisma.characterAptitude.update({
+      where: { id: charAptitude.id },
+      data: { ativo },
+      include: { aptitude: true },
+    });
+
+    return updated;
+  }
+
+  async deleteAptitude(characterId: string, aptitudeId: string, userId: string) {
+    const character = await this.checkOwnership(characterId, userId);
+    
+    const charAptitude = await this.prisma.characterAptitude.findFirst({
+      where: { characterId, aptitudeId },
+    });
+    if (!charAptitude) throw new NotFoundException('Aptitude not found');
+
+    await this.prisma.characterAptitude.delete({ where: { id: charAptitude.id } });
+    return { success: true };
   }
 
   async addTechnique(
