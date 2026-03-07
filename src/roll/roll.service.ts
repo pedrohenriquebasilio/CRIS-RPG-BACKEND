@@ -1,10 +1,22 @@
 import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { GameGateway } from '../gateway/game.gateway';
 import { Atributo } from '@prisma/client';
 
 @Injectable()
 export class RollService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private gateway: GameGateway,
+  ) {}
+
+  private async createLog(args: Parameters<PrismaService['combatLog']['create']>[0]) {
+    const log = await this.prisma.combatLog.create(args);
+    if (log.campaignId) {
+      this.gateway.emitCombatLog(log.campaignId, log);
+    }
+    return log;
+  }
 
   roll1d20(): number {
     return Math.floor(Math.random() * 20) + 1;
@@ -87,7 +99,7 @@ export class RollService {
     }
 
     if (combatId || resolvedCampaignId) {
-      log = await this.prisma.combatLog.create({
+      log = await this.createLog({
         data: {
           combatId,
           campaignId: resolvedCampaignId,
@@ -142,7 +154,7 @@ export class RollService {
         }
       }
 
-      log = await this.prisma.combatLog.create({
+      log = await this.createLog({
         data: {
           combatId,
           campaignId: resolvedCampaignId,
@@ -272,7 +284,7 @@ export class RollService {
     }
 
     if (combatId || resolvedCampaignId) {
-      log = await this.prisma.combatLog.create({
+      log = await this.createLog({
         data: {
           combatId,
           campaignId: resolvedCampaignId,
@@ -414,7 +426,7 @@ export class RollService {
 
     let log: any = null;
     if (combatId || resolvedCampaignId) {
-      log = await this.prisma.combatLog.create({
+      log = await this.createLog({
         data: {
           combatId,
           campaignId: resolvedCampaignId,
@@ -542,7 +554,7 @@ export class RollService {
     let log: any = null;
     if (combatId || resolvedCampaignId) {
       // Log attack action
-      log = await this.prisma.combatLog.create({
+      log = await this.createLog({
         data: {
           combatId,
           campaignId: resolvedCampaignId,

@@ -7,135 +7,65 @@ async function main() {
   console.log('Iniciando Seed: Feiticeiros & Maldições v2.0 (Custom Attrs)');
 
   // ===== ESPECIALIZAÇÕES (CLASSES) =====
-  // HP e PE baseados na progressão do sistema v2.0
+  // hpPorNivel = valor fixo por nível (opção sem rolar dados, conforme livro base)
+  // energiaPorNivel = PE ganhos por nível (Especialista em Técnica/Controlador/Suporte somam mod. de atributo ao máximo — gerenciado pelo Mestre)
+  // bonusAtributos = especializações não concedem bônus fixos de atributo no livro
+  // habilidadesTreinadas = apenas as perícias FIXAS da especialização (as "a sua escolha" o player adiciona)
+  // abilities = vazio — o player cria/adiciona as habilidades manualmente
   const specializations = [
     {
       nome: 'Lutador',
-      hpPorNivel: 12,
-      energiaPorNivel: 3,
-      bonusAtributos: { FOR: 2, AGI: 0, VIG: 1, INT: 0, PRE: 0 },
-      habilidadesTreinadas: ['Atletismo', 'Luta', 'Fortitude'],
-      abilities: [
-        {
-          nome: 'Briga',
-          nivelRequerido: 1,
-          tipo: 'passiva',
-          custo: '0',
-          alcance: 'pessoal',
-          duracao: 'permanente',
-          descricao:
-            'Seus ataques desarmados causam 1d6 de dano e escalam com nível.',
-        },
-        {
-          nome: 'Técnica de Luta',
-          nivelRequerido: 2,
-          tipo: 'passiva',
-          custo: '0',
-          alcance: 'pessoal',
-          duracao: 'permanente',
-          descricao:
-            'Recebe um Estilo de Luta (ex: Focado em Potência ou Agilidade).',
-        },
-      ],
+      hpPorNivel: 6,      // 1d10 ou 6 por nível (N1: 12 + VIG)
+      energiaPorNivel: 4, // 4 PE por nível
+      bonusAtributos: { FOR: 0, AGI: 0, VIG: 0, INT: 0, PRE: 0 },
+      habilidadesTreinadas: ['Fortitude', 'Luta'],
+      // Também recebe Atletismo OU Acrobacia (escolha) + 2 quaisquer → player adiciona
+      abilities: [],
     },
     {
       nome: 'Especialista em Combate',
-      hpPorNivel: 10,
-      energiaPorNivel: 4,
-      bonusAtributos: { FOR: 1, AGI: 2, VIG: 0, INT: 0, PRE: 0 },
-      habilidadesTreinadas: ['Luta', 'Pontaria', 'Iniciativa'],
-      abilities: [
-        {
-          nome: 'Maestria Marcial',
-          nivelRequerido: 1,
-          tipo: 'passiva',
-          custo: '0',
-          alcance: 'pessoal',
-          duracao: 'permanente',
-          descricao:
-            'Você é proficiente com todas as armas marciais e recebe +2 em rolagens de dano com armas.',
-        },
-      ],
+      hpPorNivel: 6,      // 1d10 ou 6 por nível (N1: 12 + VIG)
+      energiaPorNivel: 4, // 4 PE por nível
+      bonusAtributos: { FOR: 0, AGI: 0, VIG: 0, INT: 0, PRE: 0 },
+      habilidadesTreinadas: ['Luta', 'Pontaria', 'Fortitude'],
+      // Também recebe Atletismo OU Acrobacia + 3 quaisquer → player adiciona
+      abilities: [],
     },
     {
       nome: 'Especialista em Técnica',
-      hpPorNivel: 8,
-      energiaPorNivel: 6,
-      bonusAtributos: { FOR: 0, AGI: 0, VIG: 0, INT: 2, PRE: 1 },
+      hpPorNivel: 5,      // 1d8 ou 5 por nível (N1: 10 + VIG)
+      energiaPorNivel: 6, // 6 PE por nível + soma mod. de atributo de técnica no máximo
+      bonusAtributos: { FOR: 0, AGI: 0, VIG: 0, INT: 0, PRE: 0 },
       habilidadesTreinadas: ['Feitiçaria', 'Ocultismo', 'Vontade'],
-      abilities: [
-        {
-          nome: 'Eficiência Amaldiçoada',
-          nivelRequerido: 1,
-          tipo: 'passiva',
-          custo: '0',
-          alcance: 'pessoal',
-          duracao: 'permanente',
-          descricao:
-            'O custo de energia de suas Técnicas Inatas é reduzido em 1 (mínimo 1).',
-        },
-      ],
+      // Também recebe 3 quaisquer → player adiciona
+      abilities: [],
     },
     {
       nome: 'Controlador',
-      hpPorNivel: 8,
-      energiaPorNivel: 5,
-      bonusAtributos: { FOR: 0, AGI: 0, VIG: 0, INT: 1, PRE: 2 },
-      habilidadesTreinadas: ['Feitiçaria', 'Percepção', 'Intuição'],
-      abilities: [
-        {
-          nome: 'Comando de Invocação',
-          nivelRequerido: 1,
-          tipo: 'ativa',
-          custo: 'Ação Bônus',
-          alcance: '9m',
-          duracao: 'imediato',
-          descricao:
-            'Gasta uma ação bônus para comandar um Shikigami ou criatura sob seu controle.',
-        },
-      ],
+      hpPorNivel: 5,      // 1d8 ou 5 por nível (N1: 10 + VIG)
+      energiaPorNivel: 5, // 5 PE por nível + soma mod. de atributo de técnica no máximo
+      bonusAtributos: { FOR: 0, AGI: 0, VIG: 0, INT: 0, PRE: 0 },
+      habilidadesTreinadas: ['Percepção', 'Intuição', 'Vontade'],
+      // Também recebe 2 quaisquer → player adiciona
+      abilities: [],
     },
     {
       nome: 'Suporte',
-      hpPorNivel: 8,
-      energiaPorNivel: 5,
-      bonusAtributos: { FOR: 0, AGI: 0, VIG: 1, INT: 0, PRE: 2 },
-      habilidadesTreinadas: ['Medicina', 'Diplomacia', 'Vontade'],
-      abilities: [
-        {
-          nome: 'Auxílio Amaldiçoado',
-          nivelRequerido: 1,
-          tipo: 'ativa',
-          custo: '2 PE',
-          alcance: '9m',
-          duracao: 'imediato',
-          descricao: 'Concede bônus de +d4 em um teste de um aliado.',
-        },
-      ],
+      hpPorNivel: 5,      // 1d8 ou 5 por nível (N1: 10 + VIG)
+      energiaPorNivel: 5, // 5 PE por nível + soma mod. de atributo de técnica no máximo
+      bonusAtributos: { FOR: 0, AGI: 0, VIG: 0, INT: 0, PRE: 0 },
+      habilidadesTreinadas: ['Medicina', 'Vontade'],
+      // Também recebe 3 quaisquer → player adiciona
+      abilities: [],
     },
     {
       nome: 'Restringido',
-      hpPorNivel: 14,
-      energiaPorNivel: 0,
-      bonusAtributos: { FOR: 2, AGI: 2, VIG: 2, INT: 0, PRE: 0 },
-      habilidadesTreinadas: [
-        'Atletismo',
-        'Acrobacia',
-        'Percepção',
-        'Furtividade',
-      ],
-      abilities: [
-        {
-          nome: 'Restrição Celestial',
-          nivelRequerido: 1,
-          tipo: 'passiva',
-          custo: '0',
-          alcance: 'pessoal',
-          duracao: 'permanente',
-          descricao:
-            'Você não possui energia amaldiçoada, mas recebe bônus massivos em atributos físicos e sentidos.',
-        },
-      ],
+      hpPorNivel: 7,      // 1d12 ou 7 por nível (N1: 16 + VIG)
+      energiaPorNivel: 0, // Sem energia amaldiçoada — usa Pontos de Vigor (4 por nível, gerenciados manualmente)
+      bonusAtributos: { FOR: 0, AGI: 0, VIG: 0, INT: 0, PRE: 0 },
+      habilidadesTreinadas: ['Fortitude', 'Luta', 'Pontaria'],
+      // Também recebe 4 quaisquer (exceto Feitiçaria) → player adiciona
+      abilities: [],
     },
   ];
 
@@ -246,26 +176,58 @@ async function main() {
     },
   ];
 
-  // ===== ORIGENS (v2.0) =====
+  // ===== ORIGENS =====
   const origens = [
     {
-      nome: 'Estudante de Jujutsu',
-      descricao: 'Você frequenta uma das escolas técnicas de Tokyo ou Kyoto.',
-      bonusAtributos: { FOR: 0, AGI: 0, VIG: 0, INT: 1, PRE: 1 },
-      habilidadesTreinadas: ['Feitiçaria', 'Ocultismo'],
-    },
-    {
-      nome: 'Membro de Clã',
-      descricao: 'Nascido em uma das grandes famílias de feiticeiros.',
-      bonusAtributos: { FOR: 0, AGI: 0, VIG: 0, INT: 0, PRE: 2 },
-      habilidadesTreinadas: ['História', 'Diplomacia'],
-    },
-    {
-      nome: 'Ex-Militar',
+      nome: 'Inato',
       descricao:
-        'Treinamento tático e físico rigoroso antes de descobrir o jujutsu.',
-      bonusAtributos: { FOR: 1, AGI: 0, VIG: 1, INT: 0, PRE: 0 },
-      habilidadesTreinadas: ['Luta', 'Atletismo'],
+        'Sua técnica amaldiçoada é natural e exclusiva. Distribua +2 em um atributo e +1 em outro à sua escolha. ' +
+        'Recebe 1 Habilidade de Técnica extra com custo reduzido em 1 energia (não conta para o máximo de habilidades). ' +
+        'Recebe 1 Talento no nível 1; a partir do nível 4, pode escolher 1 Talento adicional ao subir de nível (apenas uma vez).',
+      bonusAtributos: { FOR: 0, AGI: 0, VIG: 0, INT: 0, PRE: 0 },
+      habilidadesTreinadas: [],
+    },
+    {
+      nome: 'Derivado',
+      descricao:
+        'Energia amaldiçoada de origem anormal com traços únicos. Distribua +2 em um atributo e +1 em outro à sua escolha. ' +
+        'Recebe 1 Aptidão Amaldiçoada de Aura (deve atender os requisitos). ' +
+        'Como ação bônus em combate, pode recuperar energia igual ao dobro do bônus de maestria (1x por dia). ' +
+        'A cada 4 níveis, pode aumentar em 2 o máximo natural de um atributo (limite 30).',
+      bonusAtributos: { FOR: 0, AGI: 0, VIG: 0, INT: 0, PRE: 0 },
+      habilidadesTreinadas: [],
+    },
+    {
+      nome: 'Herdado',
+      descricao:
+        'Pertence a um dos grandes clãs de feiticeiros. Bônus de atributo, maestrias de clã e técnicas hereditárias dependem do clã escolhido — configurados manualmente pelo Mestre. ' +
+        'Clãs disponíveis: Gojo (Potencial Lendário: +1 energia/nível par, +1 habilidade de técnica extra nos níveis 1/5/10/15/20), ' +
+        'Inumaki (Olhos de Cobra e Presas: comando de aliado como ação bônus, usos = maestria), ' +
+        'Kamo (Valor do Sangue: +1 HP por nível ao subir; a partir do nível 10 +2 HP por nível), ' +
+        'Zenin (Foco no Poder: escolha habilidades focadas nos níveis 1/5/10/15/20 — cada uma pode causar +1 dado de dano, curar +1 dado, ter o dobro do alcance ou ter a CD aumentada em maestria).',
+      bonusAtributos: { FOR: 0, AGI: 0, VIG: 0, INT: 0, PRE: 0 },
+      habilidadesTreinadas: [],
+    },
+    {
+      nome: 'Restringido',
+      descricao:
+        'Energia amaldiçoada completamente suprimida — em troca, corpo desenvolvido além do limite humano. ' +
+        'Recebe +1 em FOR, AGI e VIG, mais 2 pontos livres para distribuir entre atributos físicos (FOR, AGI ou VIG). ' +
+        'Acessa a especialização Restringido. Movimento aumenta em 3m. ' +
+        'Em descanso curto, adiciona metade do bônus de maestria à quantidade de dados curados.',
+      bonusAtributos: { FOR: 1, AGI: 1, VIG: 1, INT: 0, PRE: 0 },
+      habilidadesTreinadas: [],
+    },
+    {
+      nome: 'Sem Técnica',
+      descricao:
+        'Nenhuma técnica amaldiçoada — compensado por dedicação extrema. ' +
+        'Recebe 4 pontos para distribuir nos atributos (máx 3 no mesmo). Recebe maestria em 2 perícias à escolha. ' +
+        'Acesso ao Novo Estilo da Sombra. ' +
+        'Empenho Implacável: N3 → +1 em 3 perícias; N6 → 1 habilidade de especialização extra; N10 → 1 talento ou aptidão; ' +
+        'N13 → +2 em 2 perícias; N15 → 1 habilidade de especialização extra; N17 → +3 em 2 perícias; N19 → 1 habilidade de especialização + 1 talento.',
+      bonusAtributos: { FOR: 0, AGI: 0, VIG: 0, INT: 0, PRE: 0 },
+      habilidadesTreinadas: [],
     },
   ];
 

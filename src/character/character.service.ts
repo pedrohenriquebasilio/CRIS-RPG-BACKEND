@@ -6,11 +6,15 @@ import {
   ConflictException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { GameGateway } from '../gateway/game.gateway';
 import { Atributo, Role, TipoDano } from '@prisma/client';
 
 @Injectable()
 export class CharacterService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private gateway: GameGateway,
+  ) {}
 
   async create(data: {
     campaignId: string;
@@ -456,12 +460,14 @@ export class CharacterService {
   // ── Player self-service updates ──────────────────────────────────────────
 
   async updateNome(characterId: string, userId: string, nome: string) {
-    await this.checkOwnership(characterId, userId);
-    return this.prisma.character.update({
+    const character = await this.checkOwnership(characterId, userId);
+    const updated = await this.prisma.character.update({
       where: { id: characterId },
       data: { nome: nome.trim() },
       select: { id: true, nome: true },
     });
+    this.gateway.emitCharacterUpdate(character.campaignId, { id: characterId, nome: updated.nome });
+    return updated;
   }
 
   async updateStats(
@@ -469,7 +475,7 @@ export class CharacterService {
     userId: string,
     data: { hpAtual?: number; hpMax?: number; energiaAtual?: number; energiaMax?: number; maestriaBonus?: number },
   ) {
-    await this.checkOwnership(characterId, userId);
+    const character = await this.checkOwnership(characterId, userId);
 
     const update: Record<string, number> = {};
     if (data.hpAtual !== undefined) update.hpAtual = data.hpAtual;
@@ -478,11 +484,13 @@ export class CharacterService {
     if (data.energiaMax !== undefined) update.energiaMax = data.energiaMax;
     if (data.maestriaBonus !== undefined) update.maestriaBonus = data.maestriaBonus;
 
-    return this.prisma.character.update({
+    const updated = await this.prisma.character.update({
       where: { id: characterId },
       data: update,
       select: { id: true, hpAtual: true, hpMax: true, energiaAtual: true, energiaMax: true, maestriaBonus: true },
     });
+    this.gateway.emitCharacterUpdate(character.campaignId, { id: characterId, ...updated });
+    return updated;
   }
 
   async updateAttributes(
@@ -490,7 +498,7 @@ export class CharacterService {
     userId: string,
     attrs: { FOR?: number; AGI?: number; VIG?: number; INT?: number; PRE?: number },
   ) {
-    await this.checkOwnership(characterId, userId);
+    const character = await this.checkOwnership(characterId, userId);
 
     const data: Record<string, number> = {};
     if (attrs.FOR !== undefined) data.FOR = attrs.FOR;
@@ -499,10 +507,12 @@ export class CharacterService {
     if (attrs.INT !== undefined) data.INT = attrs.INT;
     if (attrs.PRE !== undefined) data.PRE = attrs.PRE;
 
-    return this.prisma.characterAttribute.update({
+    const updated = await this.prisma.characterAttribute.update({
       where: { characterId },
       data,
     });
+    this.gateway.emitCharacterUpdate(character.campaignId, { id: characterId, attributes: updated });
+    return updated;
   }
 
   async updateSkillByName(

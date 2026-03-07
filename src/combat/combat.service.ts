@@ -208,7 +208,7 @@ export class CombatService {
     });
 
     // Log it
-    await this.prisma.combatLog.create({
+    const damageLog = await this.prisma.combatLog.create({
       data: {
         combatId,
         campaignId: combat.campaignId,
@@ -219,6 +219,7 @@ export class CombatService {
         details: { tipoDano, hpRestante: newHp },
       },
     });
+    if (damageLog.campaignId) this.gateway.emitCombatLog(damageLog.campaignId, damageLog);
 
     const result = { participantId, damage, hpRestante: newHp, isDefeated: newHp === 0 };
     const combatState = await this.getCombatState(combatId);
@@ -253,7 +254,7 @@ export class CombatService {
     });
 
     const targetName = participant.character?.nome || participant.npc?.nome || 'Unknown';
-    await this.prisma.combatLog.create({
+    const condLog = await this.prisma.combatLog.create({
       data: {
         combatId,
         campaignId: combat.campaignId,
@@ -267,6 +268,7 @@ export class CombatService {
         },
       },
     });
+    if (condLog.campaignId) this.gateway.emitCombatLog(condLog.campaignId, condLog);
 
     return result;
   }
