@@ -145,7 +145,7 @@ async function main() {
       energiaPorNivel: 0,
       maestriaInicial: 4,
       bonusAtributos: { FOR: 0, AGI: 0, VIG: 0, INT: 0, PRE: 0 },
-      habilidadesTreinadas: ['Fortitude', 'Luta', 'Pontaria'],
+      habilidadesTreinadas: ['Fortitude', 'Luta', 'Pontaria', 'Reflexos'],
       abilities: [
         {
           nivelRequerido: 1,
