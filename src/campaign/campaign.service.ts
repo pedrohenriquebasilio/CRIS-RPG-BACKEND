@@ -17,6 +17,13 @@ export class CampaignService {
       include: {
         master: { select: { id: true, email: true } },
         _count: { select: { characters: { where: { isActive: true } } } },
+        characters: {
+          where: { isActive: true, isMob: true },
+          include: {
+            specialization: { select: { nome: true } },
+            attributes: true,
+          },
+        },
       },
     });
   }
@@ -31,6 +38,8 @@ export class CampaignService {
           include: {
             user: { select: { id: true, email: true } },
             specialization: true,
+            origemRelacao: true,
+            attributes: true,
           },
         },
         npcs: true,

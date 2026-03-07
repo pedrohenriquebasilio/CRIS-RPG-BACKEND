@@ -269,12 +269,159 @@ async function main() {
     },
   ];
 
+  // ===== ARMAS (WEAPON TEMPLATES) =====
+  const weaponTemplates = [
+    // ── Corpo a Corpo ─────────────────────────────────────────────────────────
+    {
+      nome: 'Soco Desarmado',
+      categoria: 'Corpo a Corpo',
+      damageDice: '1d4',
+      tipoDano: 'FISICO',
+      distancia: 'Corpo a Corpo (1,5m)',
+      duasMaos: false,
+      requiresMarcial: false,
+      descricao: 'Ataque desarmado básico.',
+    },
+    {
+      nome: 'Faca',
+      categoria: 'Corpo a Corpo',
+      damageDice: '1d4',
+      tipoDano: 'FISICO',
+      distancia: 'Corpo a Corpo (1,5m)',
+      duasMaos: false,
+      requiresMarcial: false,
+      threatRange: 19,
+      descricao: 'Lâmina curta de fácil ocultação.',
+    },
+    {
+      nome: 'Clava / Cacetete',
+      categoria: 'Corpo a Corpo',
+      damageDice: '1d6',
+      tipoDano: 'FISICO',
+      distancia: 'Corpo a Corpo (1,5m)',
+      duasMaos: false,
+      requiresMarcial: false,
+      descricao: 'Arma contundente improvisada ou simples.',
+    },
+    {
+      nome: 'Espada Curta',
+      categoria: 'Corpo a Corpo',
+      damageDice: '1d6',
+      tipoDano: 'FISICO',
+      distancia: 'Corpo a Corpo (1,5m)',
+      duasMaos: false,
+      requiresMarcial: true,
+      threatRange: 19,
+      descricao: 'Lâmina versátil de uso único.',
+    },
+    {
+      nome: 'Katana',
+      categoria: 'Corpo a Corpo',
+      damageDice: '1d8',
+      tipoDano: 'FISICO',
+      distancia: 'Corpo a Corpo (1,5m)',
+      duasMaos: false,
+      requiresMarcial: true,
+      threatRange: 19,
+      criticalMultiplier: 3,
+      descricao: 'Espada japonesa de lâmina curva, símbolo dos feiticeiros de clã.',
+    },
+    {
+      nome: 'Lança',
+      categoria: 'Corpo a Corpo',
+      damageDice: '1d8',
+      tipoDano: 'FISICO',
+      distancia: 'Corpo a Corpo (3m)',
+      duasMaos: true,
+      requiresMarcial: false,
+      descricao: 'Haste de combate com alcance estendido.',
+    },
+    {
+      nome: 'Espada Bastarda',
+      categoria: 'Corpo a Corpo',
+      damageDice: '1d10',
+      tipoDano: 'FISICO',
+      distancia: 'Corpo a Corpo (1,5m)',
+      duasMaos: true,
+      requiresMarcial: true,
+      threatRange: 19,
+      criticalMultiplier: 3,
+      descricao: 'Espada de duas mãos de alto impacto.',
+    },
+    // ── Armas à Distância ─────────────────────────────────────────────────────
+    {
+      nome: 'Pistola',
+      categoria: 'Arma de Fogo',
+      damageDice: '1d8',
+      tipoDano: 'FISICO',
+      distancia: 'Curto (18m)',
+      duasMaos: false,
+      requiresMarcial: false,
+      descricao: 'Arma de fogo de porte individual.',
+    },
+    {
+      nome: 'Espingarda',
+      categoria: 'Arma de Fogo',
+      damageDice: '2d6',
+      tipoDano: 'FISICO',
+      distancia: 'Curto (9m)',
+      duasMaos: true,
+      requiresMarcial: true,
+      regraEspecial: 'Disparo em cone: pode atacar todos em linha de 3m à frente.',
+      descricao: 'Alta potência a curta distância.',
+    },
+    {
+      nome: 'Fuzil de Assalto',
+      categoria: 'Arma de Fogo',
+      damageDice: '1d10',
+      tipoDano: 'FISICO',
+      distancia: 'Médio (90m)',
+      duasMaos: true,
+      requiresMarcial: true,
+      descricao: 'Rifle automático de uso militar.',
+    },
+    {
+      nome: 'Arco',
+      categoria: 'Arco e Flecha',
+      damageDice: '1d6',
+      tipoDano: 'FISICO',
+      distancia: 'Médio (60m)',
+      duasMaos: true,
+      requiresMarcial: false,
+      descricao: 'Silencioso e preciso.',
+    },
+    // ── Armas Amaldiçoadas ─────────────────────────────────────────────────────
+    {
+      nome: 'Ferramenta Amaldiçoada',
+      categoria: 'Arma Amaldiçoada',
+      damageDice: '1d6',
+      tipoDano: 'ENERGETICO',
+      distancia: 'Corpo a Corpo (1,5m)',
+      duasMaos: false,
+      requiresMarcial: false,
+      regraEspecial: 'Dano de Energia Amaldiçoada — ignora armaduras físicas.',
+      descricao: 'Objeto imbuído com energia maldita, eficaz contra maldições.',
+    },
+    {
+      nome: 'Instrumento Ritual',
+      categoria: 'Arma Amaldiçoada',
+      damageDice: '1d8',
+      tipoDano: 'ESPIRITUAL',
+      distancia: 'Corpo a Corpo (1,5m)',
+      duasMaos: true,
+      requiresMarcial: false,
+      regraEspecial: 'Dano Espiritual — afeta entidades imateriais plenamente.',
+      descricao: 'Arma ritual de cerimônia, forjada para purificação espiritual.',
+    },
+  ];
+
   // ===== LÓGICA DE EXECUÇÃO =====
   // Limpeza de tabelas (Opcional, mas recomendado para seed limpa)
   await prisma.specializationAbility.deleteMany();
   await prisma.specialization.deleteMany();
   await prisma.skill.deleteMany();
   await prisma.origem.deleteMany();
+  await prisma.weaponTemplate.deleteMany();
 
   for (const s of skills) {
     await prisma.skill.create({ data: s });
@@ -297,6 +444,10 @@ async function main() {
 
   for (const o of origens) {
     await prisma.origem.create({ data: o });
+  }
+
+  for (const w of weaponTemplates) {
+    await prisma.weaponTemplate.create({ data: w });
   }
 
   console.log('Seed finalizada com sucesso.');

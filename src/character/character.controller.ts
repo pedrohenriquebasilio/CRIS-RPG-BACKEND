@@ -100,6 +100,10 @@ export class AddWeaponDto {
   @Min(1)
   @IsOptional()
   criticalMultiplier?: number;
+
+  @IsString()
+  @IsOptional()
+  descricao?: string;
 }
 
 export class GrantXpDto {
@@ -115,6 +119,31 @@ export class GrantXpDto {
 export class DistributeAttributeDto {
   @IsEnum(Atributo)
   attribute: Atributo;
+}
+
+export class AddAbilityDto {
+  @IsString()
+  nome: string;
+
+  @IsString()
+  @IsOptional()
+  tipo?: string;
+
+  @IsString()
+  @IsOptional()
+  custo?: string;
+
+  @IsString()
+  @IsOptional()
+  alcance?: string;
+
+  @IsString()
+  @IsOptional()
+  duracao?: string;
+
+  @IsString()
+  @IsOptional()
+  descricao?: string;
 }
 
 export class UpdateStatsDto {
@@ -311,6 +340,24 @@ export class CharacterController {
       treinada: dto.treinada,
       pontosInvestidos: dto.pontosInvestidos,
     });
+  }
+
+  @Post(':id/abilities')
+  addAbility(
+    @Param('id') id: string,
+    @Body() dto: AddAbilityDto,
+    @CurrentUser() user: any,
+  ) {
+    return this.characterService.addAbility(id, dto, user.id);
+  }
+
+  @Delete(':id/abilities/:abilityId')
+  deleteAbility(
+    @Param('id') id: string,
+    @Param('abilityId') abilityId: string,
+    @CurrentUser() user: any,
+  ) {
+    return this.characterService.deleteAbility(id, abilityId, user.id);
   }
 
   @Post(':id/xp')

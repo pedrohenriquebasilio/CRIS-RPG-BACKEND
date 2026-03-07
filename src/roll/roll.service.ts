@@ -121,12 +121,10 @@ export class RollService {
     });
 
     const attrVal = this.getAttrValue(character.attributes, skill.atributoBase);
-    const maestria = charSkill?.treinada && skill.permiteMaestria
-      ? character.maestriaBonus
-      : 0;
+    const treinamento = charSkill?.pontosInvestidos ?? 0;
 
     const dice = this.roll1d20();
-    const total = dice + attrVal + maestria;
+    const total = dice + attrVal + treinamento;
 
     const resolvedCampaignId = campaignId ?? (combatId ? await this.getCampaignIdFromCombat(combatId) : null);
 
@@ -158,7 +156,7 @@ export class RollService {
             skillNome: skill.nome,
             atributo: skill.atributoBase,
             attrVal,
-            maestria,
+            treinamento,
           },
         },
       });
@@ -171,7 +169,7 @@ export class RollService {
       atributo: skill.atributoBase,
       dice,
       attrVal,
-      maestria,
+      treinamento,
       total,
       log,
     };

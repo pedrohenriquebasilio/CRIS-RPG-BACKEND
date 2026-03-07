@@ -106,7 +106,21 @@ model Character {
   aptitudes        CharacterAptitude[]
   techniques       Technique[]
   weapons          Weapon[]
+  abilities        CharacterAbility[]
   combatParticipations CombatParticipant[]
+}
+
+model CharacterAbility {
+  id          String    @id @default(uuid())
+  characterId String
+  character   Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
+  nome        String
+  tipo        String    @default("ativa")
+  custo       String    @default("nenhum")
+  alcance     String    @default("pessoal")
+  duracao     String    @default("imediato")
+  descricao   String    @default("")
+  createdAt   DateTime  @default(now())
 }
 
 model CharacterAttribute {
@@ -238,6 +252,7 @@ model Weapon {
   damageType         TipoDano
   threatRange        Int       @default(20)
   criticalMultiplier Int       @default(2)
+  descricao          String    @default("")
   createdAt          DateTime  @default(now())
 }
 
@@ -253,6 +268,7 @@ model WeaponTemplate {
   regraEspecial      String?
   threatRange        Int     @default(20)
   criticalMultiplier Int     @default(2)
+  descricao          String  @default("")
 }
 
 model LevelProgression {

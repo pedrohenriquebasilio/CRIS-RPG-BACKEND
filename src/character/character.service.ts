@@ -125,6 +125,7 @@ export class CharacterService {
         aptitudes: { include: { aptitude: true } },
         techniques: true,
         weapons: { include: { skill: true } },
+        abilities: { orderBy: { createdAt: 'asc' } },
       },
     });
     if (!character) throw new NotFoundException('Character not found');
@@ -260,6 +261,7 @@ export class CharacterService {
       damageType: TipoDano;
       threatRange?: number;
       criticalMultiplier?: number;
+      descricao?: string;
     },
     userId: string,
   ) {
@@ -275,6 +277,7 @@ export class CharacterService {
         damageType: weaponData.damageType,
         threatRange: weaponData.threatRange ?? 20,
         criticalMultiplier: weaponData.criticalMultiplier ?? 2,
+        descricao: weaponData.descricao ?? "",
       },
       include: { skill: true },
     });
@@ -613,6 +616,35 @@ export class CharacterService {
     });
 
     return this.findOne(characterId);
+  }
+
+  async addAbility(
+    characterId: string,
+    dto: { nome: string; tipo?: string; custo?: string; alcance?: string; duracao?: string; descricao?: string },
+    userId: string,
+  ) {
+    await this.checkOwnership(characterId, userId);
+    return this.prisma.characterAbility.create({
+      data: {
+        characterId,
+        nome: dto.nome,
+        tipo: dto.tipo ?? 'ativa',
+        custo: dto.custo ?? 'nenhum',
+        alcance: dto.alcance ?? 'pessoal',
+        duracao: dto.duracao ?? 'imediato',
+        descricao: dto.descricao ?? '',
+      },
+    });
+  }
+
+  async deleteAbility(characterId: string, abilityId: string, userId: string) {
+    await this.checkOwnership(characterId, userId);
+    const ability = await this.prisma.characterAbility.findFirst({
+      where: { id: abilityId, characterId },
+    });
+    if (!ability) throw new NotFoundException('Ability not found');
+    await this.prisma.characterAbility.delete({ where: { id: abilityId } });
+    return { deleted: true };
   }
 
   private async checkOwnership(characterId: string, userId: string) {
