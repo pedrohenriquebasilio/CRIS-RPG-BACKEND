@@ -221,6 +221,12 @@ async function main() {
       descricao: 'Velocidade de reação no início do combate.',
     },
     {
+      nome: 'Reflexos',
+      atributoBase: Atributo.AGI,
+      permiteMaestria: true,
+      descricao: 'Capacidade de reagir rapidamente a situações inesperadas.',
+    },
+    {
       nome: 'Fortitude',
       atributoBase: Atributo.VIG,
       permiteMaestria: true,
