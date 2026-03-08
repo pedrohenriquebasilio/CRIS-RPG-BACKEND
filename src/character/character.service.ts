@@ -283,6 +283,7 @@ export class CharacterService {
       nivel: number;
       custoEnergia: number;
       atributoBase: Atributo;
+      skillNome?: string;
       descricaoLivre: string;
       tipoDano?: string;
       damageDice?: string;
@@ -303,6 +304,7 @@ export class CharacterService {
         nivel: techniqueData.nivel,
         custoEnergia: techniqueData.custoEnergia,
         atributoBase: techniqueData.atributoBase,
+        skillNome: techniqueData.skillNome ?? null,
         descricaoLivre: techniqueData.descricaoLivre,
         tipoDano: techniqueData.tipoDano as any,
         damageDice: techniqueData.damageDice ?? null,
@@ -319,6 +321,8 @@ export class CharacterService {
       custoEnergia: number;
       descricaoLivre: string;
       damageDice: string | null;
+      skillNome: string | null;
+      atributoBase: Atributo;
     }>,
     userId: string,
   ) {

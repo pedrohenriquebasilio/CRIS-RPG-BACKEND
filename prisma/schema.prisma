@@ -234,6 +234,7 @@ model Technique {
   nivel          Int       @default(0)
   custoEnergia   Int
   atributoBase   Atributo
+  skillNome      String?
   descricaoLivre String    @default("")
   tipoDano       TipoDano?
   damageDice     String?
