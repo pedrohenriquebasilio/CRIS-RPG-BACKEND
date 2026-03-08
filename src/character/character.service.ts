@@ -285,6 +285,7 @@ export class CharacterService {
       atributoBase: Atributo;
       descricaoLivre: string;
       tipoDano?: string;
+      damageDice?: string;
     },
     userId: string,
   ) {
@@ -304,6 +305,7 @@ export class CharacterService {
         atributoBase: techniqueData.atributoBase,
         descricaoLivre: techniqueData.descricaoLivre,
         tipoDano: techniqueData.tipoDano as any,
+        damageDice: techniqueData.damageDice ?? null,
       },
     });
   }
@@ -316,6 +318,7 @@ export class CharacterService {
       nivel: number;
       custoEnergia: number;
       descricaoLivre: string;
+      damageDice: string | null;
     }>,
     userId: string,
   ) {
