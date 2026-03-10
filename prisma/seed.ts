@@ -844,6 +844,420 @@ async function main() {
     console.log(`  Talentos já existem (${existingTalentos}), pulando.`);
   }
 
+  // ===== APTIDÕES =====
+  const aptidoesData: Array<{
+    nome: string;
+    descricao: string;
+    prerequisitoNivel: number;
+    prerequisitoAptidaoNome: string | null;
+    tipo: string;
+  }> = [
+    // ── APTIDÕES DE AURA ────────────────────────────────────────────────────────
+    {
+      nome: 'Aura Elemental',
+      descricao: 'Você converte as propriedades da sua aura, imbuindo-a com um elemento, para assim ser capaz de alterar o tipo de dano causado pelos seus ataques com armas. Ao obter essa habilidade, você pode escolher um dos tipos de danos elementais para ser o novo tipo de dano dos seus ataques com armas. São eles: ácido, chocante, congelante, de força, necrótico, psíquico, queimante, radiante e venenoso. Dentro de combate, como uma ação livre, você pode desabilitar a aura elemental, retornando os seus ataques ao tipo de dano padrão.',
+      prerequisitoNivel: 1,
+      prerequisitoAptidaoNome: null,
+      tipo: 'buff',
+    },
+    {
+      nome: 'Aura Elemental Aprimorada',
+      descricao: 'Ao já ter uma aura elemental, você se foca em melhorar tal propriedade, aumentando o dano causado e tornando-se resistente a ele. Ao obter essa habilidade, todo ataque feito com corpo-a-corpo ou com arma causa 1d6 de dano adicional do tipo escolhido previamente. Além disso, você se torna resistente ao tipo de dano escolhido. Com Nível de Aptidão em Energia 2, o dano adicional se torna 1d8; com nível de aptidão 3, se torna 1d10 e, com nível de aptidão 5, se torna 1d12. [Pré-Requisito: Aura Elemental]',
+      prerequisitoNivel: 1,
+      prerequisitoAptidaoNome: 'Aura Elemental',
+      tipo: 'dano',
+    },
+    {
+      nome: 'Aura Reforçada',
+      descricao: 'Reforçando o fluxo da sua aura, você se torna capaz de pausar e anular uma parcela do dano que recebe fisicamente, tornando mais difícil de realmente atingir seu corpo. Você recebe redução contra dano físico - cortes, perfurações e impactos - igual ao dobro do seu Nível de Aptidão em Energia.',
+      prerequisitoNivel: 1,
+      prerequisitoAptidaoNome: null,
+      tipo: 'buff',
+    },
+    {
+      nome: 'Aura Impenetrável',
+      descricao: 'Melhorando ainda mais o fluxo, você se torna capaz de transformar a sua aura em uma fortaleza impenetrável contra simples golpes físicos. Ao obter essa habilidade, você pode, como uma ação bônus, transformar a sua aura em impenetrável por 1 rodada, gastando 3 pontos de energia amaldiçoada. Enquanto sua aura estiver impenetrável, você recebe resistência a dano cortante, perfurante e de impacto. [Pré-Requisito: Aura Reforçada, Nível 10 e Nível de Aptidão em Energia 2]',
+      prerequisitoNivel: 10,
+      prerequisitoAptidaoNome: 'Aura Reforçada',
+      tipo: 'buff',
+    },
+    {
+      nome: 'Casulo de Energia',
+      descricao: 'Evoluindo ao limite o fluxo da aura, você consegue a deixar tão densa e maciça que se torna um casulo protetivo. Ao obter essa habilidade você pode, como uma ação comum, formar um casulo de energia por 1 rodada, gastando 6 pontos de energia amaldiçoada. Enquanto o casulo estiver ativo, você recebe imunidade a dano cortante, perfurante e de impacto. [Pré-Requisito: Aura Impenetrável, Nível 12 e Nível de Aptidão em Energia 4]',
+      prerequisitoNivel: 12,
+      prerequisitoAptidaoNome: 'Aura Impenetrável',
+      tipo: 'buff',
+    },
+    {
+      nome: 'Aura Inofensiva',
+      descricao: 'Sua aura amaldiçoada é moldada para aparentar ser muito menor e intensa do que realmente é, criando um aspecto inofensivo. Em um combate, a primeira criatura a te atacar deve fazer um teste de resistência de vontade (carisma). Se falhar, ela perde o ataque e não pode mais te atacar pelo resto da rodada. Esta habilidade só funciona uma vez por combate. [Pré-Requisito: Carisma 16]',
+      prerequisitoNivel: 1,
+      prerequisitoAptidaoNome: null,
+      tipo: 'buff',
+    },
+    {
+      nome: 'Aura Controlada',
+      descricao: 'Você refinou seu controle sobre a aura, impedindo que ela se revele quando é inconveniente, ajudando-o a se ocultar e esconder sua presença. Você recebe um bônus de +3 em rolagens de Furtividade. Sempre que realizar uma rolagem de Furtividade, você pode gastar 1 ponto de energia amaldiçoada para receber vantagem, controlando ainda mais a sua aura. [Pré-Requisito: Destreza 16 e Maestria em Furtividade]',
+      prerequisitoNivel: 1,
+      prerequisitoAptidaoNome: null,
+      tipo: 'buff',
+    },
+    {
+      nome: 'Aura do Comandante',
+      descricao: 'Refletindo uma personalidade ou presença forte, estar coberto pela sua aura parece ser uma grande motivação para aliados. Você pode, como uma ação bônus, expandir sua aura para cobrir todo aliado dentro de 4,5 metros, os quais podem recebem 1 + seu Nível de Aptidão em Energia em rolagens de dano e testes de perícia dentro do combate. Para cada turno que você manter a aura ativa, você paga 2 ponto de energia amaldiçoada. [Pré-Requisito: Carisma 16 e Nível 8]',
+      prerequisitoNivel: 8,
+      prerequisitoAptidaoNome: null,
+      tipo: 'buff',
+    },
+    {
+      nome: 'Aura Macabra',
+      descricao: 'Maldita e vil, sua aura é macabra e perturba aqueles que estejam sendo afetados por ela. Toda criatura agressiva que começar um turno dentro de 1,5 metros de você precisa realizar um teste de resistência de vontade (atributo principal da técnica). Em uma falha, ela fica amedrontada, podendo repetir o teste no próximo turno dela, deixando de estar amedrontada em um sucesso. Como uma ação livre, você pode pagar 1 ponto de energia amaldiçoada para expandir esse alcance para 4,5 metros por 1 rodada.',
+      prerequisitoNivel: 1,
+      prerequisitoAptidaoNome: null,
+      tipo: 'buff',
+    },
+    {
+      nome: 'Aura Lacerante',
+      descricao: 'Sua aura é afiada, causando danos apenas com o contato. Você pode ativar sua aura lacerante por 1 rodada, como ação livre. Enquanto ativa, uma criatura que iniciar seu turno dentro de 3 metros de você deve realizar um teste de resistência de Fortitude (atributo principal da técnica). Em uma falha, ela recebe Xd6 + seu modificador do atributo principal de dano de força, onde X é o seu Nível de Aptidão em Energia.',
+      prerequisitoNivel: 1,
+      prerequisitoAptidaoNome: null,
+      tipo: 'dano',
+    },
+    {
+      nome: 'Aura Maciça',
+      descricao: 'Sua aura é tão densa que parece começar a tomar uma forma maciça, dificultando os inimigos a conseguirem realmente acertá-lo. Sua Classe de Armadura aumenta em um valor igual a 1 + seu Nível de Aptidão em Energia. [Pré-Requisito: Constituição 16]',
+      prerequisitoNivel: 1,
+      prerequisitoAptidaoNome: null,
+      tipo: 'buff',
+    },
+    {
+      nome: 'Aura Chamativa',
+      descricao: 'Você cria uma aura ao seu redor que é chamativa, atraente e mágica, cativando a atenção facilmente. Toda criatura que não for seu aliado, e começar um turno dentro de 4,5 metros de você, precisa realizar um teste de resistência de vontade (atributo principal da técnica). Em uma falha, ela fica enfeitiçada, podendo repetir o teste no próximo turno dela, deixando de estar enfeitiçada em um sucesso. [Pré-Requisito: Carisma 16]',
+      prerequisitoNivel: 1,
+      prerequisitoAptidaoNome: null,
+      tipo: 'buff',
+    },
+    {
+      nome: 'Aura Anuladora',
+      descricao: 'A aura que o cobre obtém uma propriedade anuladora, capaz de protegê-lo de certos efeitos. Uma quantidade de vezes igual ao seu bônus de maestria, caso você fosse sofrer uma condição, você pode pagar uma quantidade variável de energia para ignorá-la, a depender do nível da condição. Anular uma condição fraca custa 2PE; anular uma média custa 4PE; uma forte custa 6PE e uma extrema custa 10PE. Você recupera esses usos em um descanso longo.',
+      prerequisitoNivel: 1,
+      prerequisitoAptidaoNome: null,
+      tipo: 'buff',
+    },
+    {
+      nome: 'Afinidade Ampliada',
+      descricao: 'Sua aura é aprimorada para ter uma maior afinidade com um elemento específico. Ao obter essa habilidade, você escolhe um tipo de dano elemental. Sempre que você infligir dano desse tipo específico, você causa dano adicional igual a 1 + o seu Nível de Aptidão em Energia no total de dano.',
+      prerequisitoNivel: 1,
+      prerequisitoAptidaoNome: null,
+      tipo: 'dano',
+    },
+    {
+      nome: 'Absorção Elemental',
+      descricao: 'Uma aura pronta para absorver e armazenar elementos, podendo depois liberá-los em seus próprios ataques. Sempre que você receber dano elemental, você pode usar sua reação para absorver parte dele e guardar. Isso não reduz o dano, mas, na próxima vez em que você realizar um ataque você pode adicionar Xd6 de dano do mesmo tipo. X é igual ao seu Nível de Aptidão em Energia. Esta habilidade não é cumulativa. [Pré-Requisito: Aura Elemental]',
+      prerequisitoNivel: 1,
+      prerequisitoAptidaoNome: 'Aura Elemental',
+      tipo: 'dano',
+    },
+    {
+      nome: 'Aura de Contenção',
+      descricao: 'Com foco em conter, tem-se uma aura mais pesada e densa. Sempre que for agarrar um alvo, você adiciona +3 na rolagem de Atletismo, assim como na rolagem para evitar que uma criatura escape. Uma criatura agarrada possui -3 em rolagens de Atletismo ou Acrobacia para tentar escapar. Duas vezes por cena, você pode também gastar 1 ponto de energia amaldiçoada para receber vantagem para agarrar ou impor desvantagem na criatura que tentar escapar. [Pré-Requisito: Força ou Constituição 15]',
+      prerequisitoNivel: 1,
+      prerequisitoAptidaoNome: null,
+      tipo: 'buff',
+    },
+    {
+      nome: 'Aura Drenadora',
+      descricao: 'Uma aura vampiresca e capaz de drenar a partir da vida que é arrancada dos seus alvos. Sempre que matar um inimigo, você se cura em um valor igual a Xd8 + seu modificador de Constituição, onde X é igual ao seu Nível de Aptidão em Energia. [Pré-Requisito: Nível 6, Nível de Aptidão em Energia 2]',
+      prerequisitoNivel: 6,
+      prerequisitoAptidaoNome: null,
+      tipo: 'cura',
+    },
+    {
+      nome: 'Aura Embaçada',
+      descricao: 'Você desenvolve uma maneira de deixar a sua aura embaçada e borrada, criando uma chance de um ataque inimigo simplesmente errar. Como uma ação bônus, você pode pagar 2 pontos de energia amaldiçoada para ativar a aura embaçada, a qual dura uma cena. Enquanto a aura estiver ativa, todo ataque corpo-a-corpo ou a distância tem 10% de chance de falhar (1 em 1d10). [Pré-Requisito: Destreza 16]',
+      prerequisitoNivel: 1,
+      prerequisitoAptidaoNome: null,
+      tipo: 'buff',
+    },
+    {
+      nome: 'Aura do Bastião',
+      descricao: 'Sua aura é protetiva e auxilia seus aliados a não serem acertados. Todo aliado dentro de 3 metros de você recebe um bônus na Classe de Armadura igual a 1 + seu Nível de Aptidão em Energia.',
+      prerequisitoNivel: 1,
+      prerequisitoAptidaoNome: null,
+      tipo: 'buff',
+    },
+    {
+      nome: 'Aura Movediça',
+      descricao: 'Você molda a sua aura para ser efetiva contra projéteis, deixando-os mais lentos em seu percurso, em um efeito movediço. Você recebe RD contra ataques a distância igual ao dobro do seu Nível de Aptidão em Energia.',
+      prerequisitoNivel: 1,
+      prerequisitoAptidaoNome: null,
+      tipo: 'buff',
+    },
+    {
+      nome: 'Enganação Projetada',
+      descricao: 'Usando de agilidade e rapidez, você consegue projetar a sua aura antes de um ataque, criando uma ilusão de quando ele acontecerá. Quando atacar uma criatura, ela deve realizar um teste de resistência de astúcia (atributo principal da técnica), e caso falhe, você terá vantagem nesse ataque. Para cada ataque após o primeiro, no mesmo turno, você deve pagar 1 ponto de energia amaldiçoada para projetar a ilusão. [Pré-Requisito: Destreza 18 e Nível 4]',
+      prerequisitoNivel: 4,
+      prerequisitoAptidaoNome: null,
+      tipo: 'buff',
+    },
+    {
+      nome: 'Transferência de Aura',
+      descricao: 'Utilizando da sua energia, você se torna capaz de transferir a sua aura para outra pessoa. Como uma ação bônus, você pode pagar 2 pontos de energia amaldiçoada e escolher uma criatura dentro de 9 metros para transferir uma aura. Você escolhe qual aura deseja transferir, e a pessoa recebe os efeitos dela durante uma rodada. Você pode manter a aura transferida por mais rodadas, pagando 1 ponto de energia para cada rodada após a primeira.',
+      prerequisitoNivel: 1,
+      prerequisitoAptidaoNome: null,
+      tipo: 'buff',
+    },
+    {
+      nome: 'Aura Redirecionadora',
+      descricao: 'Você descobre como imbuir parte da sua aura em um projétil ou arma de arremesso, conseguindo-o redirecionar caso erre. Você pode gastar 1 ponto de energia amaldiçoada para imbuir um projétil ou arma de arremesso antes de realizar um ataque: caso erre o ataque com um projétil ou arma imbuída, você pode realizar a rolagem de ataque outra vez, tendo como alvo uma criatura dentro de 4,5 metros do primeiro alvo, conforme o projétil ou arma é redirecionada. Além disso, a segunda rolagem de ataque recebe um bônus no acerto igual a 1 + seu Nível de Aptidão em Energia. [Pré-Requisito: Destreza 16]',
+      prerequisitoNivel: 1,
+      prerequisitoAptidaoNome: null,
+      tipo: 'buff',
+    },
+    {
+      nome: 'Concentrar Aura',
+      descricao: 'Você consegue concentrar a sua aura em um único ponto, que é a sua arma, sacrificando as propriedades dela em troca de um segundo impacto. Como uma ação livre, você pode escolher por desabilitar uma certa quantidade de aptidões de aura por 1 rodada. Para cada aptidão desabilitada, após acertar um ataque com a arma, o alvo recebe 1d8 de dano de força. Você pode desabilitar até uma quantidade de aptidões igual a 1 + seu Nível de Aptidão em Energia.',
+      prerequisitoNivel: 1,
+      prerequisitoAptidaoNome: null,
+      tipo: 'dano',
+    },
+    {
+      nome: 'Golpe com Aura',
+      descricao: 'Ao invés de simplesmente deixar a sua aura fluir com um aspecto específico, você coloca esse aspecto no seu próximo golpe, dificultando a resistência. Você pode gastar 1 ponto de energia para imbuir um golpe com uma aptidão de aura que force um teste de resistência: a criatura realiza o teste de resistência caso o ataque acerte, e a CD é aumentada em 4.',
+      prerequisitoNivel: 1,
+      prerequisitoAptidaoNome: null,
+      tipo: 'buff',
+    },
+    {
+      nome: 'Aura Excessiva',
+      descricao: 'O fluxo de energia da sua aura se torna excessivo, liberando quantidades tão exageradas que consegue resistir a danos além dos físicos. No começo de toda rodada você pode escolher pagar 2 pontos de energia amaldiçoada. Caso o faça, sua redução de dano da Aura Reforçada passa a contar para todos os tipos de dano, exceto na alma. [Pré-Requisito: Aura Reforçada, Constituição 16 e Nível 8]',
+      prerequisitoNivel: 8,
+      prerequisitoAptidaoNome: 'Aura Reforçada',
+      tipo: 'buff',
+    },
+    // ── APTIDÕES DE CONTROLE E LEITURA ─────────────────────────────────────────
+    {
+      nome: 'Rastreio Avançado',
+      descricao: 'Você se especializa em entender e rastrear qualquer vestígio de energia amaldiçoada. Em uma cena onde tenha sido usada energia amaldiçoada, você é capaz de o discernir de imediato se já conhecer a pessoa de quem ele originou. Caso não, você pode rolar Investigação ou Percepção com objetivo de entender. Em caso de sucesso, você consegue perceber as características daquela energia e seguir o rastro perfeitamente.',
+      prerequisitoNivel: 1,
+      prerequisitoAptidaoNome: null,
+      tipo: 'buff',
+    },
+    {
+      nome: 'Leitura Rápida de Energia',
+      descricao: 'Treinando e se adaptando a ler rapidamente auras, você adquire uma maior capacidade de prever a próxima ação dos usuários de energia amaldiçoada, o que te favorece não só ofensivamente, mas defensivamente também. Você não pode receber desvantagem ou prejuízos para acertar inimigos por causa de aura, e inimigos não recebem bônus de Classe de Armadura por aura contra você. Sua classe de armadura aumenta em um valor igual ao seu nível de aptidão em Controle e Leitura.',
+      prerequisitoNivel: 1,
+      prerequisitoAptidaoNome: null,
+      tipo: 'buff',
+    },
+    {
+      nome: 'Canalizar em Golpe',
+      descricao: 'Você se torna capaz de concentrar sua energia amaldiçoada em suas armas e golpes, assim potencializando ainda mais a capacidade destrutiva em troca de um gasto de energia. Como uma ação bônus, você pode gastar uma quantidade de pontos de energia amaldiçoada igual a seu nível de aptidão em Controle e Leitura para adicionar dano: para cada ponto gasto, seu próximo ataque causa 1d8 de dano adicional. Essa habilidade funciona apenas por um ataque. Errar um ataque não consome esse uso.',
+      prerequisitoNivel: 1,
+      prerequisitoAptidaoNome: null,
+      tipo: 'dano',
+    },
+    {
+      nome: 'Canalização Avançada',
+      descricao: 'Você aperfeiçoa a prática de canalizar energia em golpes, conseguindo a realizar mais rapidamente e com mais poder. Canalizar energia em uma arma também pode ser feito como uma reação ao realizar um ataque, e o bônus passa de 1d8 para 1d10. A habilidade continua funcionando apenas por um ataque e não é consumida em um erro. [Pré-Requisito: Canalizar em Golpe, Força ou Destreza 18, Nível 8 e Nível de Aptidão em Controle e Leitura 2]',
+      prerequisitoNivel: 8,
+      prerequisitoAptidaoNome: 'Canalizar em Golpe',
+      tipo: 'dano',
+    },
+    {
+      nome: 'Canalização Máxima',
+      descricao: 'Você alcança o ápice da técnica de canalizar energia nos seus golpes, levando-a para um nível superior. O bônus por ponto gasto aumenta de 1d10 para 1d12. A habilidade passa a funcionar em dois ataques ao invés de um. [Pré-Requisito: Canalização Avançada, Força ou Destreza 20, Nível 16 e Nível de Aptidão em Controle e Leitura 4]',
+      prerequisitoNivel: 16,
+      prerequisitoAptidaoNome: 'Canalização Avançada',
+      tipo: 'dano',
+    },
+    {
+      nome: 'Cobrir-se',
+      descricao: 'Você se torna capaz de concentrar sua energia amaldiçoada em seu corpo, assim amenizando os impactos em troca de um consumo imediato de energia. Como uma reação, ao receber dano, você pode gastar uma quantidade de pontos de energia amaldiçoada igual a 2 + o dobro do seu nível de aptidão em Controle e Leitura para reduzir o dano: para cada ponto gasto, você diminui o dano recebido em 2d2+2.',
+      prerequisitoNivel: 1,
+      prerequisitoAptidaoNome: null,
+      tipo: 'buff',
+    },
+    {
+      nome: 'Cobertura Avançada',
+      descricao: 'Você desenvolve a sua capacidade de revestir e cobrir seu corpo com energia amaldiçoada, resistindo a golpes. Ao usar sua reação para cobrir-se, cada ponto gasto passa a reduzir o dano em 2d4+3. [Pré-Requisito: Cobrir-se, Nível 10 e Nível de Aptidão em Controle e Leitura 2]',
+      prerequisitoNivel: 10,
+      prerequisitoAptidaoNome: 'Cobrir-se',
+      tipo: 'buff',
+    },
+    {
+      nome: 'Projetar Energia',
+      descricao: 'Ao invés de canalizar energia em um objeto, você a concentra e libera como um projétil explosivo. Você pode gastar uma quantidade de pontos de energia amaldiçoada igual a 1 + seu nível de aptidão em Controle e Leitura e o transformar em um projétil, o qual você dispara como uma ação comum. Para cada ponto gasto, o projétil causará 1d10 de dano de força, somando o modificador do seu maior atributo no total. O alcance do projétil é igual a 9 metros + 1,5 metros x bônus de maestria. Você pode escolher tanto fazer uma rolagem de ataque, utilizando a perícia de Feitiçaria, ou forçar o alvo a realizar um teste de resistência de reflexos (maior atributo).',
+      prerequisitoNivel: 1,
+      prerequisitoAptidaoNome: null,
+      tipo: 'dano',
+    },
+    {
+      nome: 'Projeção Avançada',
+      descricao: 'Dominando a prática de concentrar e disparar projéteis a partir da sua energia, você eleva sua projeção. O dano causado por ponto gasto aumenta para 2d6, além de passar a somar o dobro do seu modificador ao total. Caso use como um ataque, você recebe +3 para acertar ou, caso force um teste de resistência, a dificuldade aumenta em 2. [Pré-Requisito: Projetar Energia, Destreza ou Inteligência 18, Nível 8 e Nível de Aptidão em Controle e Leitura 2]',
+      prerequisitoNivel: 8,
+      prerequisitoAptidaoNome: 'Projetar Energia',
+      tipo: 'dano',
+    },
+    {
+      nome: 'Projeção Máxima',
+      descricao: 'Você leva a prática de disparar energia projetada até o ápice dela, criando projéteis devastadores. O dano por ponto aumenta de 2d6 para 3d8. O bônus para acertar se torna +6 e o aumento na dificuldade do teste de resistência 4. [Pré-Requisito: Projeção Avançada, Destreza ou Inteligência 20, Nível 16 e Nível de Aptidão em Controle e Leitura 4]',
+      prerequisitoNivel: 16,
+      prerequisitoAptidaoNome: 'Projeção Avançada',
+      tipo: 'dano',
+    },
+    {
+      nome: 'Projeção Dividida',
+      descricao: 'Você descobre uma nova maneira de disparar sua energia projetada, dividindo-a em dois projéteis no meio do caminho. Ao realizar um disparo de energia contra um alvo, você pode pagar até metade da energia gasta no disparo para o duplicar como parte da mesma ação. A duplicata do projétil deve ter como alvo uma criatura dentro de 4,5 metros do alvo original e causa dano igual à quantidade de energia gasta nele, seguindo o cálculo padrão. [Pré-Requisito: Projeção Avançada, Nível 12 e Nível de Aptidão em Controle e Leitura 3]',
+      prerequisitoNivel: 12,
+      prerequisitoAptidaoNome: 'Projeção Avançada',
+      tipo: 'dano',
+    },
+    {
+      nome: 'Expandir Aura',
+      descricao: 'Você se torna capaz de controlar bem a sua energia, incluindo a que compõe sua aura, podendo assim a expandir com uma descarga de energia. No seu turno, como uma ação livre, você pode gastar 2 pontos de energia amaldiçoada para expandir a sua aura, dobrando o seu alcance por uma rodada. Para cada rodada após a primeira, você deve pagar mais 1 ponto de energia para a manter expandida. [Pré-Requisito: Nível 6]',
+      prerequisitoNivel: 6,
+      prerequisitoAptidaoNome: null,
+      tipo: 'buff',
+    },
+    {
+      nome: 'Identificação de Itens',
+      descricao: 'Sua leitura de energia fica apurada o suficiente para conseguir identificar e desvendar itens amaldiçoados, descobrindo suas propriedades. Ao ver um item amaldiçoado de qualquer tipo, você pode realizar uma rolagem de Feitiçaria para tentar o compreender e, caso suceda, você consegue descobrir o nome do item e as suas propriedades. A CD do teste depende do grau do item, sendo igual a 15 + 3 para cada grau. Dentro de combate, realizar esse teste é uma ação bônus.',
+      prerequisitoNivel: 1,
+      prerequisitoAptidaoNome: null,
+      tipo: 'buff',
+    },
+    {
+      nome: 'Leitura de Aura',
+      descricao: 'Compreendendo bem a energia e as propriedades que ela pode assumir em auras, você consegue ler auras e identificar os seus efeitos. Ao ver uma criatura que possua uma aura amaldiçoada, você pode realizar uma rolagem de Feitiçaria para tentar a ler e descobrir suas propriedades, cuja CD é igual a 15 + 3 para cada grau da criatura. Caso suceda no teste, você descobre quais as propriedades da aura da criatura.',
+      prerequisitoNivel: 1,
+      prerequisitoAptidaoNome: null,
+      tipo: 'buff',
+    },
+    {
+      nome: 'Punho Divergente',
+      descricao: 'Uma técnica peculiar de controle do fluxo da energia. O impacto de seus golpes diverge e se divide em dois momentos: ao acertar o golpe, e após um curto período de tempo. Ao acertar um ataque desarmado, você pode escolher causar apenas metade do dano, e guardar a outra metade para ser causada no turno seguinte. Caso escolha que o resto do dano seja causado no turno seguinte, a criatura que recebeu o ataque deve realizar um teste de resistência de Fortitude (maior atributo físico) e, caso falhe, o dano será causado como se o inimigo tivesse vulnerabilidade. Além disso, conforme maior a potência do primeiro golpe, mais difícil é se preparar para resistir ao segundo impacto: para cada 5 pontos de dano na primeira metade do dano, a CD aumenta em 1.',
+      prerequisitoNivel: 1,
+      prerequisitoAptidaoNome: null,
+      tipo: 'dano',
+    },
+    {
+      nome: 'Estímulo Muscular',
+      descricao: 'Você domina o seu controle de maneira eficiente, conseguindo utilizar da sua energia para estimular o seu corpo a agir de maneira melhorada, potencializando seus músculos. Ao se mover você pode usar sua reação para gastar 1 ponto de energia amaldiçoada para se mover uma distância adicional igual a metade do seu movimento. Você também pode gastar 1 ponto de energia ao pular, para duplicar sua altura de pulo.',
+      prerequisitoNivel: 1,
+      prerequisitoAptidaoNome: null,
+      tipo: 'buff',
+    },
+    {
+      nome: 'Estímulo Muscular Avançado',
+      descricao: 'Seu controle para imbuir os músculos com energia torna-se ainda mais apurado. Ao realizar um teste de Atletismo ou Acrobacia você pode pagar 2 pontos de energia amaldiçoada para, como uma reação, rolar novamente o teste, ficando com o melhor resultado. [Pré-Requisito: Estímulo Muscular, Força ou Destreza 18, Nível 4 e Nível de Aptidão em Controle e Leitura 2]',
+      prerequisitoNivel: 4,
+      prerequisitoAptidaoNome: 'Estímulo Muscular',
+      tipo: 'buff',
+    },
+    // ── APTIDÕES DE DOMÍNIO ─────────────────────────────────────────────────────
+    {
+      nome: 'Domínio Simples',
+      descricao: 'O domínio simples é uma das principais técnicas anti-domínio, criando uma barreira protetiva. Como uma ação bônus, você paga 4PE para erguer um domínio simples: uma barreira com área esférica de 1,5m é formada ao seu redor, acompanhando-o caso se mova; enquanto estiver com o domínio simples ativo, o usuário não sofre os efeitos de uma expansão de domínio, nem o acerto garantido. Para cada rodada após a primeira, é necessário pagar 3PE para sustentar o domínio simples. Você também pode erguer um domínio simples como reação a uma expansão de domínio, mas o seu custo é aumentado em 3PE. [Pré-Requisito: Nível 4]',
+      prerequisitoNivel: 4,
+      prerequisitoAptidaoNome: null,
+      tipo: 'buff',
+    },
+    {
+      nome: 'Anular Técnica',
+      descricao: 'Você aprimora o seu domínio simples para ser efetivo não só contra expansões de domínio, mas contra técnicas amaldiçoadas no geral, conseguindo anulá-las se usado rapidamente. Quando você for alvo ou submetido a uma habilidade de técnica, você pode usar sua reação para tentar anulá-la; você só pode tentar anular uma habilidade de técnica que seja de um nível que você tem acesso a. Você gasta uma quantidade de energia amaldiçoada igual à que foi usada para conjurar a habilidade, e realiza um teste Feitiçaria contra a Feitiçaria de quem usou a habilidade de técnica. Caso a habilidade que você deseja anular seja em área, nenhuma das criaturas submetidas sofrem o efeito, desde que você a anule. Por ser algo cansativo e complexo, você pode usar essa habilidade uma quantidade de vezes igual ao seu modificador de maestria, por descanso longo. [Pré-Requisitos: Domínio Simples, Nível 8 e Nível de Aptidão em Domínio 3]',
+      prerequisitoNivel: 8,
+      prerequisitoAptidaoNome: 'Domínio Simples',
+      tipo: 'buff',
+    },
+    {
+      nome: 'Espaço em Batalha',
+      descricao: 'Seu domínio simples assume um novo propósito, podendo o convocar como uma maneira de expandir seu espaço em batalha. Ao usar seu domínio simples dessa maneira, ele custa 4 para ser mantido, por rodada em batalha, e o convocar é uma ação bônus. Seu espaço passa de 1,5m por 1,5m para 6m por 6m, sendo esse tamanho considerado para ataques de oportunidade, os quais você também pode realizar caso uma criatura entre em seu espaço. [Pré-Requisitos: Domínio Simples, Nível 8 e Nível de Aptidão em Domínio 1]',
+      prerequisitoNivel: 8,
+      prerequisitoAptidaoNome: 'Domínio Simples',
+      tipo: 'buff',
+    },
+    {
+      nome: 'Dominância Absoluta',
+      descricao: 'Seu domínio simples é levado ao limite, no quesito ofensivo, dando-lhe dominância absoluta em batalha. Como uma ação bônus, você pode convocar seu domínio simples, com um espaço de 9m por 9m, custando 6 de energia amaldiçoada por rodada para ser mantido. Além disso, sempre que uma criatura realizar um ataque dentro do seu espaço, em um alvo aliado ou em você, você pode realizar um ataque de oportunidade como ação livre. [Pré-Requisitos: Espaço em Batalha, Nível 12 e Nível de Aptidão em Domínio 3]',
+      prerequisitoNivel: 12,
+      prerequisitoAptidaoNome: 'Espaço em Batalha',
+      tipo: 'buff',
+    },
+    {
+      nome: 'Expansão de Domínio Incompleta',
+      descricao: 'Iniciando-se na parte mais complexa do Jujutsu, você passa a ser capaz de expandir o seu domínio interno, embora ainda de maneira incompleta. Como uma ação comum, você pode pagar 15PE para expandir seu domínio incompleto, o qual se espalha por uma área igual a 4,5 metros multiplicado pelo seu bônus de maestria, adaptando-se também ao ambiente ao seu redor. Enquanto estiver com a expansão ativa, certos efeitos são aplicados, os quais devem ser montados de acordo com o Guia de Criação de Expansões de Domínio. Uma expansão de domínio incompleta dura, por padrão, uma quantidade de rodadas igual a 1 + seu nível de aptidão em domínio. [Pré-Requisito: Nível 8, Aptidão em Domínio 2]',
+      prerequisitoNivel: 8,
+      prerequisitoAptidaoNome: null,
+      tipo: 'buff',
+    },
+    {
+      nome: 'Expansão de Domínio Completa',
+      descricao: 'Aperfeiçoando na técnica da expansão, alcança-se um patamar superior, conseguindo fechar uma barreira e prender seus alvos dentro dela. Como uma ação comum, você pode pagar 20PE para expandir seu domínio completo, o qual cria uma área esférica de 9 metros. Enquanto estiver com a expansão ativa, certos efeitos são aplicados, os quais devem ser montados de acordo com o Guia de Criação de Expansões de Domínio. Uma expansão de domínio completa dura, por padrão, uma quantidade de rodadas igual a 3 + seu nível de aptidão em domínio. [Pré-Requisito: Nível 10, Técnicas de Barreira, Expansão de Domínio Incompleta e Nível de Aptidão em Domínio 3]',
+      prerequisitoNivel: 10,
+      prerequisitoAptidaoNome: 'Expansão de Domínio Incompleta',
+      tipo: 'buff',
+    },
+    {
+      nome: 'Acerto Garantido',
+      descricao: 'Você alcança o ápice das técnicas de domínio, conseguindo usar o acerto garantido, que define uma expansão de domínio letal. Ao obter esta aptidão, você pode adicionar o efeito Acerto Garantido em sua expansão de domínio, o qual não conta para o máximo, imbuindo sua técnica nas barreiras criadas. O funcionamento do Acerto Garantido deve ser elaborado de acordo com o guia de criação de domínios. Adicionar acerto garantido em uma expansão completa aumenta o seu custo em 5 pontos de energia amaldiçoada. [Pré-Requisito: Nível 14, Maestria em Feitiçaria, Expansão de Domínio Completa e Nível de Aptidão em Domínio 4]',
+      prerequisitoNivel: 14,
+      prerequisitoAptidaoNome: 'Expansão de Domínio Completa',
+      tipo: 'buff',
+    },
+    {
+      nome: 'Expansão de Domínio Sem Barreiras',
+      descricao: 'Assim como conter água sem um recipiente ou desenhar no céu sem uma tela, existe uma forma de expandir um domínio que exige um controle sobre a energia amaldiçoada extremo, sendo possível apenas para os mais talentosos e habilidosos. A expansão sem barreiras possui os mesmos efeitos e custo de uma expansão completa com acerto garantido, mas não levanta barreiras, tendo um alcance superior para o acerto garantido em troca, o qual pode até mesmo superar as barreiras de outras expansões de domínio, atacando-os por fora. [Pré-Requisito: Nível 18, Especialização em Feitiçaria, Acerto Garantido e Nível de Aptidão em Domínio 5]',
+      prerequisitoNivel: 18,
+      prerequisitoAptidaoNome: 'Acerto Garantido',
+      tipo: 'buff',
+    },
+    {
+      nome: 'Amplificação de Domínio',
+      descricao: 'Uma técnica que amplifica a aura de energia amaldiçoada para obter certas características de domínio. Nessa aplicação, deixa-se a aura amplificada vazia, com chance de neutralizar habilidades de técnica. Você pode, como uma ação bônus, pagar 4 pontos de energia amaldiçoada para amplificar o seu domínio, recebendo assim 50% de chance de ignorar ataques feitos de energia e habilidades de técnica dos inimigos (1 ou 2 em 1d4). Enquanto estiver com o domínio amplificado, você não pode usar habilidades de técnica. Para cada rodada após a primeira, você deve pagar mais 4 pontos de energia para manter a amplificação. [Pré-Requisito: Nível 8 e Nível de Aptidão em Domínio 2]',
+      prerequisitoNivel: 8,
+      prerequisitoAptidaoNome: null,
+      tipo: 'buff',
+    },
+  ];
+
+  // Passo 1: criar/atualizar todas as aptidões sem links de pré-requisito
+  const aptidaoIds: Record<string, string> = {};
+  for (const a of aptidoesData) {
+    const existing = await prisma.aptitude.findFirst({
+      where: { nome: a.nome, isSystem: true },
+    });
+    let id: string;
+    if (existing) {
+      await prisma.aptitude.update({
+        where: { id: existing.id },
+        data: { descricao: a.descricao, prerequisitoNivel: a.prerequisitoNivel, tipo: a.tipo },
+      });
+      id = existing.id;
+    } else {
+      const created = await prisma.aptitude.create({
+        data: { nome: a.nome, descricao: a.descricao, prerequisitoNivel: a.prerequisitoNivel, tipo: a.tipo, isSystem: true },
+      });
+      id = created.id;
+    }
+    aptidaoIds[a.nome] = id;
+  }
+
+  // Passo 2: linkar os prerequisitoAptidaoId
+  for (const a of aptidoesData) {
+    if (a.prerequisitoAptidaoNome) {
+      const prereqId = aptidaoIds[a.prerequisitoAptidaoNome];
+      if (prereqId) {
+        await prisma.aptitude.updateMany({
+          where: { nome: a.nome, isSystem: true },
+          data: { prerequisitoAptidaoId: prereqId },
+        });
+      }
+    }
+  }
+
+  console.log(`  ${aptidoesData.length} aptidões de sistema criadas/atualizadas.`);
+
   console.log('Seed finalizada com sucesso.');
 }
 

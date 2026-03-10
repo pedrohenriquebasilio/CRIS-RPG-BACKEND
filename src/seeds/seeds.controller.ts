@@ -19,7 +19,11 @@ export class SeedsController {
 
   @Get('aptitudes')
   getAptitudes() {
-    return this.prisma.aptitude.findMany();
+    return this.prisma.aptitude.findMany({
+      where: { isSystem: true },
+      orderBy: { nome: 'asc' },
+      include: { prerequisitoAptidao: { select: { id: true, nome: true } } },
+    });
   }
 
   @Get('conditions')
