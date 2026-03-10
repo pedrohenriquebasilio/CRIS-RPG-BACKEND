@@ -60,6 +60,7 @@ model User {
   characters         Character[]
   techniqueTemplates TechniqueTemplate[]
   items              Item[]
+  talentos           Talento[]
 }
 
 model Campaign {
@@ -109,8 +110,38 @@ model Character {
   techniques           Technique[]
   weapons              Weapon[]
   abilities            CharacterAbility[]
+  talentos             CharacterTalento[]
   combatParticipations CombatParticipant[]
   inventory            InventoryItem[]
+}
+
+model Talento {
+  id          String   @id @default(uuid())
+  nome        String
+  tipo        String   @default("ativa")
+  custo       String   @default("nenhum")
+  alcance     String   @default("pessoal")
+  duracao     String   @default("imediato")
+  descricao   String   @default("")
+  damageDice  String?
+  atributoBase String?
+  isSystem    Boolean  @default(false)
+  createdById String?
+  createdBy   User?    @relation(fields: [createdById], references: [id], onDelete: SetNull)
+  createdAt   DateTime @default(now())
+
+  characterTalentos CharacterTalento[]
+}
+
+model CharacterTalento {
+  id          String    @id @default(uuid())
+  characterId String
+  character   Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
+  talentoId   String
+  talento     Talento   @relation(fields: [talentoId], references: [id], onDelete: Cascade)
+  createdAt   DateTime  @default(now())
+
+  @@unique([characterId, talentoId])
 }
 
 model CharacterAbility {

@@ -13,6 +13,7 @@ import { SpecializationsModule } from './specializations/specializations.module'
 import { TechniqueTemplateModule } from './technique-template/technique-template.module';
 import { ItemModule } from './item/item.module';
 import { InventoryModule } from './inventory/inventory.module';
+import { TalentoModule } from './talento/talento.module';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { InventoryModule } from './inventory/inventory.module';
     TechniqueTemplateModule,
     ItemModule,
     InventoryModule,
+    TalentoModule,
   ],
 })
 export class AppModule {}

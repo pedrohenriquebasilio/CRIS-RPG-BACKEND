@@ -93,6 +93,7 @@ export class CharacterService {
         aptitudes: { include: { aptitude: true } },
         techniques: true,
         weapons: { include: { skill: true } },
+        talentos: { include: { talento: true } },
       },
     });
 
@@ -111,6 +112,7 @@ export class CharacterService {
         aptitudes: { include: { aptitude: true } },
         techniques: true,
         weapons: { include: { skill: true } },
+        talentos: { include: { talento: true } },
       },
     });
   }
@@ -130,6 +132,7 @@ export class CharacterService {
         techniques: true,
         weapons: { include: { skill: true } },
         abilities: { orderBy: { createdAt: 'asc' } },
+        talentos: { include: { talento: true }, orderBy: { createdAt: 'asc' } },
       },
     });
     if (!character) throw new NotFoundException('Character not found');

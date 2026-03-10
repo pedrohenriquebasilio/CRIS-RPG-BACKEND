@@ -41,4 +41,12 @@ export class SeedsController {
   getOrigens() {
     return this.prisma.origem.findMany({ orderBy: { nome: 'asc' } });
   }
+
+  @Get('talentos')
+  getTalentos() {
+    return this.prisma.talento.findMany({
+      orderBy: [{ isSystem: 'desc' }, { nome: 'asc' }],
+      include: { createdBy: { select: { id: true, email: true } } },
+    });
+  }
 }
