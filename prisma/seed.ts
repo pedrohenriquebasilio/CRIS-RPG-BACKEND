@@ -610,6 +610,240 @@ async function main() {
     });
   }
 
+  // ===== TALENTOS (sistema) =====
+  const talentos = [
+    {
+      nome: 'Adepto de Combate',
+      tipo: 'passiva',
+      descricao: 'Você se torna adepto a um estilo de combate específico. Ao obter esse talento você aprende um dos estilos de combate da especialização Especialista em Combate.',
+    },
+    {
+      nome: 'Afinidade com Técnica',
+      tipo: 'passiva',
+      descricao: 'Com uma afinidade superior com a sua técnica amaldiçoada, você consegue a desenvolver melhor, criando mais extensões dela. Ao obter esse talento, você recebe uma habilidade de técnica a mais e tem o seu máximo aumentado em uma quantidade igual a metade do seu bônus de maestria. No nível 10, você recebe outra habilidade de técnica a mais.',
+    },
+    {
+      nome: 'Arremessos Debilitantes',
+      tipo: 'ativa',
+      descricao: 'Ao arremessar armas, você sabe focar exatamente nos lugares em que é capaz de debilitar o alvo. Sempre que realizar um ataque com arma de arremesso, você pode optar por focar em debilitar o alvo, recebendo -5 no acerto, mas caso acerte, o inimigo receberá -5 na próxima rolagem que realizar.',
+    },
+    {
+      nome: 'Artesão Amaldiçoado',
+      tipo: 'passiva',
+      descricao: 'A criação de ferramentas amaldiçoadas é um ofício no qual você busca se especializar por completo. Sempre que for realizar uma rolagem para criar ou melhorar uma ferramenta amaldiçoada, você a realiza com vantagem. Além disso, você recebe maestria em Ofício (Ferreiro) ou Feitiçaria, caso não possua; caso já possua em ambas, você se torna especialista em uma delas, a sua escolha.',
+    },
+    {
+      nome: 'Ataque Infalível',
+      tipo: 'passiva',
+      descricao: 'Ao rolar o dano de um ataque com arma, quando rolar 1 ou 2, você pode rolar novamente, ficando com o novo resultado, mesmo se for igual. Você também não pode ter os níveis de dano da sua arma reduzidos.',
+    },
+    {
+      nome: 'Atenção Infalível',
+      tipo: 'passiva',
+      descricao: 'Você não pode ser surpreendido, se consciente, e ataques de inimigos que você não possa ver não te deixam desprevenido. Você recebe um bônus de +5 em Atenção.',
+    },
+    {
+      nome: 'Atirador Preciso',
+      tipo: 'ativa',
+      descricao: 'Atacar a uma distância grande não impõe desvantagem no seu ataque a distância. Sua arma a distância ignora meia cobertura e 3/4 de cobertura. Antes de fazer um ataque com uma arma a distância você pode escolher receber uma penalidade de -5 para acertar em troca de infligir +10 de dano.',
+    },
+    {
+      nome: 'Dedicação Recompensadora',
+      tipo: 'passiva',
+      descricao: 'Você se dedica mais do que o normal em suas missões e recebe melhores recompensas em troca. No quarto grau, recebe dois itens de custo 1 a mais; no terceiro grau, dois itens de custo 2 a mais; no segundo grau, um item de custo 2 e dois de custo 3 a mais; no primeiro grau, dois itens de custo 3, um de custo 4 a mais e, no grau especial, dois itens de custo 4 a mais. Os aumentos não são cumulativos.',
+    },
+    {
+      nome: 'Favorecido pela Sorte',
+      tipo: 'ativa',
+      descricao: 'Você tem 3 pontos de sorte. Sempre que fizer uma rolagem, pode gastar um ponto para rolar outro d20, escolhendo qualquer um dos dois resultados. Pode escolher rolar após ver o resultado, mas antes das consequências. Também pode gastar 1 ponto quando é atacado, rolando um d20 e escolhendo se o inimigo usa o seu resultado ou o dele. Recupera os pontos após um descanso longo.',
+    },
+    {
+      nome: 'Feiticeiro Companheiro',
+      tipo: 'passiva',
+      descricao: 'Em busca de garantir o sucesso, você recruta um feiticeiro para ser seu companheiro. Você recebe um aliado de um tipo a sua escolha: entre o nível 1 a 5, ele é iniciante; entre o nível 6 e 10, ele é veterano e, a partir do nível 11, ele se torna um mestre.',
+    },
+    {
+      nome: 'Guarda Infalível',
+      tipo: 'reacao',
+      descricao: 'Você nunca baixa a sua guarda. Em caso de um desastre em um teste de ataque, você não causa um ataque como reação. Caso um efeito tente reduzir sua classe de armadura ou impor modificadores negativos em testes de resistência, você terá +4 para resistir.',
+    },
+    {
+      nome: 'Incremento de Atributo',
+      tipo: 'passiva',
+      descricao: 'Ao obter esse talento, você aumenta o valor de um atributo em 2, podendo superar até mesmo o limite natural. Você pode pegar este talento várias vezes, mas apenas uma vez para cada atributo.',
+    },
+    {
+      nome: 'Investida Aprimorada',
+      tipo: 'ativa',
+      descricao: 'Você domina a arte de realizar uma investida. Ao realizá-la, seu movimento aumenta em 3 metros; o bônus de acerto aumenta de +2 para um valor igual ao seu bônus de maestria e, caso acerte, o alvo deve realizar um teste de Atletismo contra o seu, sendo derrubado em uma falha.',
+    },
+    {
+      nome: 'Maldição de Bolso',
+      tipo: 'passiva',
+      descricao: 'Você possui uma maldição pequena capaz de armazenar itens para você. O inventário da maldição de bolso possui 8 espaços. Retirar um item dela conta como uma ação livre. Itens com energia amaldiçoada armazenados no interior dela não são detectáveis.',
+    },
+    {
+      nome: 'Mestre das Armas',
+      tipo: 'passiva',
+      descricao: 'Aumenta a Força ou Destreza em 1. Você recebe maestria em quatro armas quaisquer a sua escolha.',
+    },
+    {
+      nome: 'Mestre Defensivo',
+      tipo: 'passiva',
+      descricao: 'Aumenta a Força ou Constituição em 1. Você recebe maestria em escudos.',
+    },
+    {
+      nome: 'Provocação Desafiadora',
+      tipo: 'ativa',
+      descricao: 'Uma criatura afetada por uma ação de Provocar sua, ao invés de receber desvantagem para atacar outras criaturas, só pode realizar ataques contra você, até que suceda em um teste para escapar da provocação.',
+    },
+    {
+      nome: 'Resiliência Melhorada',
+      tipo: 'passiva',
+      descricao: 'Ao obter este talento, escolha uma perícia de teste de resistência: você recebe maestria nela ou, caso já possua, se torna especialista. O valor do atributo usado na perícia escolhida aumenta em 1.',
+    },
+    {
+      nome: 'Técnicas Agressivas de Escudo',
+      tipo: 'ativa',
+      descricao: 'Ao atacar no seu turno, você pode usar sua ação bônus para empurrar o alvo usando seu escudo. Caso empurrado com sucesso, ele recebe Xd4 (X = modificador de força) de dano de impacto, pode ser empurrado até 4,5 metros e fica caído.',
+    },
+    {
+      nome: 'Técnicas de Arremesso',
+      tipo: 'passiva',
+      descricao: 'Sempre que atacar com uma arma de arremesso, você recebe +2 para acertar e +3 no dano. Caso erre, a arma imediatamente volta para a sua mão, a menos que algo na trajetória impeça.',
+    },
+    {
+      nome: 'Técnicas de Reação Rápida',
+      tipo: 'passiva',
+      descricao: 'Você recebe +5 de Iniciativa. Após a rolagem de iniciativa, caso você não seja o primeiro, você pode rolar novamente, ficando com o melhor resultado.',
+    },
+    {
+      nome: 'Técnicas Defensivas de Escudo',
+      tipo: 'reacao',
+      descricao: 'Você passa a adicionar o bônus do escudo em testes de resistência de reflexos. Caso seja submetido a um efeito que permita um teste de resistência para receber metade do dano e suceda, você pode usar sua reação para transformar o resultado em um sucesso crítico, anulando os efeitos do ataque em você.',
+    },
+    {
+      nome: 'Tempestade de Ideias',
+      tipo: 'passiva',
+      descricao: 'Aumenta um atributo a sua escolha em 1. Você recebe maestria em duas perícias e duas ferramentas a sua escolha. Escolha uma das suas maestrias, exceto Luta e Pontaria, para ter o bônus de maestria adicionado em toda rolagem que a utilize, desde que não seja para ataques.',
+    },
+    {
+      nome: 'Técnicas de Empunhadura Dupla',
+      tipo: 'passiva',
+      descricao: 'Você recebe +1 na classe de armadura empunhando uma arma em cada mão. Pode lutar com duas armas mesmo que não sejam leves, desde que não possuam a propriedade pesada ou duas mãos. Pode sacar ou guardar duas armas ao invés de uma como parte de um mesmo saque. [Pré-Requisito: Força ou Destreza 14]',
+    },
+    {
+      nome: 'Técnicas de Imobilização',
+      tipo: 'ativa',
+      descricao: 'Você tem vantagem para atacar uma criatura que estiver agarrando e causa 1d6 de dano adicional (aumenta nos níveis 6, 12 e 18). Pode usar uma ação para imobilizar uma criatura agarrada: em sucesso ela fica Incapacitada e tem a CA reduzida pelo seu bônus de maestria, mas você também fica Incapacitado. [Pré-Requisito: Força ou Constituição 16]',
+    },
+    {
+      nome: 'Alma Inquebrável',
+      tipo: 'passiva',
+      descricao: 'Você recebe +5 em rolagens de Integridade e redução de dano na alma igual a metade do seu nível de personagem. [Pré-Requisito: Constituição 14]',
+    },
+    {
+      nome: 'Robustez Aprimorada',
+      tipo: 'passiva',
+      descricao: 'Seus pontos de vida máximos aumentam em um valor igual ao dobro do seu nível ao obter esse talento. Sempre que subir de nível, você recebe +2 pontos de vida máximos. [Pré-Requisito: Constituição 14]',
+    },
+    {
+      nome: 'Determinado a Viver',
+      tipo: 'passiva',
+      descricao: 'Uma vez por dia, na primeira vez que fosse para os testes de morte, você pode escolher ficar com 1 de vida ao invés disso. Todo teste de morte a partir do segundo possui vantagem. [Pré-Requisito: Constituição 18 ou Nível 10]',
+    },
+    {
+      nome: 'Correr e Atirar',
+      tipo: 'ativa',
+      descricao: 'Ao realizar a ação Disparar enquanto maneja uma arma de fogo, você recebe RD igual ao seu modificador de Destreza e todos os seus ataques com armas de fogo causam um dado de dano adicional até o final do turno. [Pré-Requisito: Destreza 14]',
+    },
+    {
+      nome: 'Técnicas de Esquiva',
+      tipo: 'ativa',
+      descricao: 'Você recebe +2 na Classe de Armadura e em Testes de Reflexos. Uma quantidade de vezes por descanso longo, igual ao seu modificador de Destreza, você pode usar Esquivar como uma ação bônus. [Pré-Requisito: Destreza 14]',
+    },
+    {
+      nome: 'Técnicas de Mobilidade',
+      tipo: 'passiva',
+      descricao: 'Seu movimento aumenta em 3 metros. Quando usar Disparar, terreno difícil não te custa movimento adicional. Ao atacar uma criatura, você não causa ataques de oportunidade para ela pelo resto do seu turno. [Pré-Requisito: Destreza 14]',
+    },
+    {
+      nome: 'Discurso Motivador',
+      tipo: 'ativa',
+      descricao: 'Gaste 10 minutos inspirando aliados: todas as criaturas amigáveis próximas recebem HP temporário igual ao dobro do seu nível + seu modificador de carisma multiplicado pela metade do bônus de maestria. Uma criatura só pode receber esse bônus uma vez por descanso. [Pré-Requisito: Maestria em alguma perícia de Carisma]',
+    },
+    {
+      nome: 'Técnicas de Ocultamento',
+      tipo: 'passiva',
+      descricao: 'Você aplica o dobro do bônus de maestria em rolagens de furtividade. O alvo de um ataque surpresa recebe -5 em todos os testes de resistência contra você enquanto desprevenido. [Pré-Requisito: Maestria em Furtividade]',
+    },
+    {
+      nome: 'Aptidão Desenvolvida',
+      tipo: 'passiva',
+      descricao: 'Escolha uma aptidão amaldiçoada para ter o seu nível de aptidão aumentado em 1. Você pode pegar esse talento múltiplas vezes, mas apenas uma vez para cada Aptidão. [Pré-Requisito: Nível 4]',
+    },
+    {
+      nome: 'Disparos Perfurantes',
+      tipo: 'passiva',
+      descricao: 'Ao realizar um ataque com arma de fogo contra um alvo com uma criatura adjacente, a criatura adjacente deve realizar um TR de Reflexos e, caso falhe, recebe metade do dano causado ao alvo. [Pré-Requisito: Nível 4]',
+    },
+    {
+      nome: 'Mestre da Criação',
+      tipo: 'passiva',
+      descricao: 'Quando escolher o foco Criação de Itens durante um interlúdio, você pode criar 2 itens adicionais. Caso escolha esse foco mais de uma vez, recebe as oportunidades adicionais para cada foco. Além disso, recebe +3 em duas perícias de ofício a sua escolha. [Pré-Requisitos: Nível 4 e Maestria em dois Ofícios]',
+    },
+    {
+      nome: 'Mestre dos Chicotes',
+      tipo: 'passiva',
+      descricao: 'Suas rolagens de ataque com chicotes causam +4 de dano e o alcance aumenta em 1,5 metros. Uma vez ao turno, ao acertar uma criatura com chicote, você pode forçá-la a realizar um TR de Fortitude e, caso falhe, puxá-la até 3 metros para sua direção. [Pré-Requisito: Nível 5]',
+    },
+    {
+      nome: 'Técnicas do Sentinela',
+      tipo: 'reacao',
+      descricao: 'Ao acertar uma criatura com um ataque de oportunidade, o movimento dela se torna 0. Criaturas provocam ataques de oportunidade para você mesmo ao usar Desengajar. Quando uma criatura a 1,5 metros faz um ataque contra alguém além de você, você pode como reação realizar um ataque contra essa criatura. [Pré-Requisito: Nível 5]',
+    },
+    {
+      nome: 'Rápido no Gatilho',
+      tipo: 'passiva',
+      descricao: 'Você ignora a propriedade Recarga de armas a distância cujo custo seja ação bônus. Estar corpo-a-corpo com uma criatura não faz você receber desvantagem em ataques a distância. [Pré-Requisito: Destreza 16 e Nível 6]',
+    },
+    {
+      nome: 'Especialista em Concussão',
+      tipo: 'passiva',
+      descricao: 'Seu valor de força ou constituição aumenta em 1. Ao usar arma de dano de impacto, considere o dano um nível superior. Uma vez por turno, ao acertar, você pode mover o alvo até 3 metros. Ao acertar um crítico, ataques contra o alvo recebem +3 até o começo do seu próximo turno. [Pré-Requisito: Nível 8]',
+    },
+    {
+      nome: 'Especialista em Cortes',
+      tipo: 'passiva',
+      descricao: 'Seu valor de força ou destreza aumenta em 1. Ao usar arma cortante, considere o dano um nível superior. Uma vez por turno, ao acertar, você pode reduzir o movimento do alvo em 4,5 metros. Ao acertar um crítico, o alvo recebe -3 em todas as rolagens de ataque até o próximo turno. [Pré-Requisito: Nível 8]',
+    },
+    {
+      nome: 'Especialista em Perfuração',
+      tipo: 'passiva',
+      descricao: 'Seu valor de força ou destreza aumenta em 1. Ao usar arma perfurante, considere o dano um nível superior. Uma vez por turno, ao acertar, você pode rolar novamente os dados de dano, usando o melhor resultado. Ao acertar um crítico, adiciona mais um dado de dano da arma. [Pré-Requisito: Nível 8]',
+    },
+    {
+      nome: 'Mestre do Arremesso',
+      tipo: 'passiva',
+      descricao: 'Toda arma de arremesso que você utilizar tem o dano aumentado em um dado; seu bônus em ataques com arremesso se torna +4 para acertar e +6 no dano, e o alcance aumenta em 6 metros. [Pré-Requisito: Nível 8, Técnicas de Arremesso]',
+    },
+    {
+      nome: 'Segredos do Artesão da Alma',
+      tipo: 'passiva',
+      descricao: 'Você adiciona o dobro do bônus de maestria em rolagens de Integridade, recebe 5 de RD a dano na alma e se torna capaz de reparar um núcleo destruído de um Corpo Amaldiçoado Mutante (requer teste de Ofício (Canalizador) e Integridade, CD = 20 + nível do corpo + 2 por dia desde a destruição). [Pré-Requisito: Nível 10 e Maestria em Integridade]',
+    },
+  ];
+
+  const existingTalentos = await prisma.talento.count({ where: { isSystem: true } });
+  if (existingTalentos === 0) {
+    await prisma.talento.createMany({
+      data: talentos.map(t => ({ ...t, isSystem: true })),
+    });
+    console.log(`  ${talentos.length} talentos de sistema criados.`);
+  } else {
+    console.log(`  Talentos já existem (${existingTalentos}), pulando.`);
+  }
+
   console.log('Seed finalizada com sucesso.');
 }
 
