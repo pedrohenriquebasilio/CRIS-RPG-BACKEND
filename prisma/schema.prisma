@@ -59,6 +59,7 @@ model User {
   campaigns          Campaign[]
   characters         Character[]
   techniqueTemplates TechniqueTemplate[]
+  items              Item[]
 }
 
 model Campaign {
@@ -109,6 +110,7 @@ model Character {
   weapons              Weapon[]
   abilities            CharacterAbility[]
   combatParticipations CombatParticipant[]
+  inventory            InventoryItem[]
 }
 
 model CharacterAbility {
@@ -270,6 +272,35 @@ model Weapon {
   criticalMultiplier Int       @default(2)
   descricao          String    @default("")
   createdAt          DateTime  @default(now())
+}
+
+model Item {
+  id          String   @id @default(uuid())
+  nome        String
+  descricao   String   @default("")
+  tipo        String   @default("misc")
+  peso        Float    @default(0)
+  valor       Int      @default(0)
+  isSystem    Boolean  @default(false)
+  createdById String?
+  createdBy   User?    @relation(fields: [createdById], references: [id], onDelete: SetNull)
+  createdAt   DateTime @default(now())
+
+  inventoryItems InventoryItem[]
+}
+
+model InventoryItem {
+  id          String    @id @default(uuid())
+  characterId String
+  character   Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
+  itemId      String
+  item        Item      @relation(fields: [itemId], references: [id])
+  quantidade  Int       @default(1)
+  equipado    Boolean   @default(false)
+  notas       String    @default("")
+  createdAt   DateTime  @default(now())
+
+  @@unique([characterId, itemId])
 }
 
 model WeaponTemplate {

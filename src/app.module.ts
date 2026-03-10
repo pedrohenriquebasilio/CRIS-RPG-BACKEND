@@ -11,6 +11,8 @@ import { GatewayModule } from './gateway/gateway.module';
 import { SeedsModule } from './seeds/seeds.module';
 import { SpecializationsModule } from './specializations/specializations.module';
 import { TechniqueTemplateModule } from './technique-template/technique-template.module';
+import { ItemModule } from './item/item.module';
+import { InventoryModule } from './inventory/inventory.module';
 
 @Module({
   imports: [
@@ -26,6 +28,8 @@ import { TechniqueTemplateModule } from './technique-template/technique-template
     SeedsModule,
     SpecializationsModule,
     TechniqueTemplateModule,
+    ItemModule,
+    InventoryModule,
   ],
 })
 export class AppModule {}
