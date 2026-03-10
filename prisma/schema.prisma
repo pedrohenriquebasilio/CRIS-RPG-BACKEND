@@ -99,6 +99,7 @@ model Character {
   isActive              Boolean         @default(true)
   pendingAptidaoSlots   Int             @default(0)
   pendingAtributoPoints Int             @default(0)
+  grau                  String          @default("4")
   createdAt             DateTime        @default(now())
 
   attributes           CharacterAttribute?

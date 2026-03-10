@@ -388,6 +388,16 @@ export class CharacterController {
     return this.characterService.deleteAbility(id, abilityId, user.id);
   }
 
+  @Patch(':id/grau/up')
+  @UseGuards(RolesGuard)
+  @Roles(Role.MASTER)
+  upgradeGrau(
+    @Param('id') id: string,
+    @CurrentUser() user: any,
+  ) {
+    return this.characterService.upgradeGrau(id, user.id);
+  }
+
   @Post(':id/xp')
   @UseGuards(RolesGuard)
   @Roles(Role.MASTER)
