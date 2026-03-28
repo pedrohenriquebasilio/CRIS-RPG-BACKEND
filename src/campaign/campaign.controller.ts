@@ -31,8 +31,8 @@ export class CampaignController {
   }
 
   @Get()
-  findAll() {
-    return this.campaignService.findAll();
+  findAll(@CurrentUser() user: any) {
+    return this.campaignService.findAll(user.id, user.role);
   }
 
   @Get(':id')

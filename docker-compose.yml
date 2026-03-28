@@ -11,6 +11,8 @@ services:
       - .env
     ports:
       - "3001:3001"
+    volumes:
+      - uploads_data:/app/uploads
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.rpg-backend.rule=Host(`api.dailydev.com.br`)"
@@ -19,6 +21,9 @@ services:
       - "traefik.http.services.rpg-backend.loadbalancer.server.port=3001"
     networks:
       - web
+
+volumes:
+  uploads_data:
 
 networks:
   web:

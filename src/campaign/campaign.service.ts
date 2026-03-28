@@ -12,13 +12,18 @@ export class CampaignService {
     });
   }
 
-  async findAll() {
+  async findAll(userId?: string, userRole?: string) {
+    const mobFilter: Record<string, unknown> = { isActive: true, isMob: true };
+    if (userRole !== 'MASTER' && userId) {
+      mobFilter.userId = userId;
+    }
+
     return this.prisma.campaign.findMany({
       include: {
         master: { select: { id: true, email: true } },
         _count: { select: { characters: { where: { isActive: true } } } },
         characters: {
-          where: { isActive: true, isMob: true },
+          where: mobFilter,
           include: {
             specialization: { select: { nome: true } },
             attributes: true,

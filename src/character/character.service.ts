@@ -30,11 +30,6 @@ export class CharacterService {
 
     const isMob = data.isMob ?? false;
 
-    // Only master can create mob sheets
-    if (isMob && data.requestingUserRole !== Role.MASTER) {
-      throw new ForbiddenException('Only master can create mob characters');
-    }
-
     // Enforce 1 character per player per campaign (non-mob only)
     if (!isMob) {
       const existing = await this.prisma.character.findFirst({
@@ -833,6 +828,15 @@ export class CharacterService {
     }
 
     return character;
+  }
+
+  async updateAvatar(id: string, filename: string, userId: string) {
+    const character = await this.prisma.character.findUnique({ where: { id } });
+    if (!character) throw new NotFoundException('Character not found');
+    if (character.userId !== userId) throw new ForbiddenException('Not your character');
+
+    const avatarUrl = `/uploads/${filename}`;
+    return this.prisma.character.update({ where: { id }, data: { avatarUrl } });
   }
 
   private async checkNotInActiveCombat(campaignId: string, userId: string) {

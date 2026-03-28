@@ -7,7 +7,14 @@ import {
   UseGuards,
   Patch,
   Delete,
+  UseInterceptors,
+  UploadedFile,
+  BadRequestException,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { diskStorage } from 'multer';
+import { extname } from 'path';
+import * as fs from 'fs';
 import { CharacterService } from './character.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RolesGuard } from '../auth/roles.guard';
@@ -396,6 +403,36 @@ export class CharacterController {
     @CurrentUser() user: any,
   ) {
     return this.characterService.upgradeGrau(id, user.id);
+  }
+
+  @Patch(':id/avatar')
+  @UseInterceptors(FileInterceptor('file', {
+    storage: diskStorage({
+      destination: (req, file, cb) => {
+        const dir = './uploads';
+        if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+        cb(null, dir);
+      },
+      filename: (req, file, cb) => {
+        const ext = extname(file.originalname).toLowerCase();
+        cb(null, `avatar-${req.params.id}${ext}`);
+      },
+    }),
+    fileFilter: (req, file, cb) => {
+      if (!file.mimetype.match(/^image\/(jpg|jpeg|png|gif|webp)$/)) {
+        return cb(new BadRequestException('Apenas imagens são permitidas'), false);
+      }
+      cb(null, true);
+    },
+    limits: { fileSize: 5 * 1024 * 1024 },
+  }))
+  updateAvatar(
+    @Param('id') id: string,
+    @UploadedFile() file: Express.Multer.File,
+    @CurrentUser() user: any,
+  ) {
+    if (!file) throw new BadRequestException('Arquivo não enviado');
+    return this.characterService.updateAvatar(id, file.filename, user.id);
   }
 
   @Post(':id/xp')
