@@ -58,7 +58,7 @@ jobs:
             JWT_SECRET=${{ secrets.JWT_SECRET }}
             JWT_EXPIRES_IN=7d
             PORT=3001
-            FRONTEND_URL=https://cris-rpg-system.vercel.app
+            FRONTEND_URL=https://curses-and-sorcerers.vercel.app
             EOF
 
             docker compose build --no-cache backend
