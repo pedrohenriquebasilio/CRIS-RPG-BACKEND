@@ -124,12 +124,8 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
     const user = this.connectedUsers.get(client.id);
     if (!user) return;
 
-    // Verificar permissão: player só move o próprio char, master move qualquer
-    if (data.characterId && user.role !== 'MASTER') {
-      const char = await this.prisma.character.findUnique({ where: { id: data.characterId } });
-      if (!char || char.userId !== user.userId) return;
-    }
-    if (data.npcId && user.role !== 'MASTER') return;
+    // Apenas o mestre pode mover tokens
+    if (user.role !== 'MASTER') return;
 
     const map = await this.prisma.gameMap.findUnique({ where: { campaignId: data.campaignId } });
     if (!map) return;

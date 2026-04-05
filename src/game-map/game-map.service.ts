@@ -55,13 +55,9 @@ export class GameMapService {
     const campaign = await this.prisma.campaign.findUnique({ where: { id: campaignId } });
     if (!campaign) throw new NotFoundException('Campanha não encontrada');
 
-    // Qualquer um pode posicionar seu próprio personagem; mestre posiciona qualquer um
-    if (data.characterId && campaign.masterId !== userId) {
-      const char = await this.prisma.character.findUnique({ where: { id: data.characterId } });
-      if (!char || char.userId !== userId) throw new ForbiddenException('Você só pode mover seu próprio personagem');
-    }
-    if (data.npcId && campaign.masterId !== userId) {
-      throw new ForbiddenException('Apenas o mestre pode mover NPCs');
+    // Apenas o mestre pode mover tokens
+    if (campaign.masterId !== userId) {
+      throw new ForbiddenException('Apenas o mestre pode mover tokens no mapa');
     }
 
     // Verificar limites do mapa
