@@ -76,6 +76,7 @@ model Campaign {
   combats    Combat[]
   npcs       Npc[]
   logs       CombatLog[]
+  gameMap    GameMap?
 }
 
 model Character {
@@ -114,6 +115,7 @@ model Character {
   talentos             CharacterTalento[]
   combatParticipations CombatParticipant[]
   inventory            InventoryItem[]
+  mapPositions         MapPosition[]
 }
 
 model Talento {
@@ -229,6 +231,7 @@ model SpecializationAbility {
   alcance          String         @default("pessoal")
   duracao          String         @default("imediato")
   descricao        String
+  skillNome        String?
 }
 
 model Aptitude {
@@ -426,6 +429,7 @@ model Npc {
 
   attributes           NpcAttribute?
   combatParticipations CombatParticipant[]
+  mapPositions         MapPosition[]
 }
 
 model NpcAttribute {
@@ -457,4 +461,35 @@ model ParticipantCondition {
   condition        Condition         @relation(fields: [conditionId], references: [id])
   rodadasRestantes Int
   appliedAt        DateTime          @default(now())
+}
+
+// ─── Game Map ────────────────────────────────────────────────────────────────
+
+model GameMap {
+  id         String   @id @default(uuid())
+  campaignId String   @unique
+  campaign   Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  width      Int      @default(30)
+  height     Int      @default(30)
+  tiles      Json     @default("[]")
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  positions MapPosition[]
+}
+
+model MapPosition {
+  id          String    @id @default(uuid())
+  gameMapId   String
+  gameMap     GameMap   @relation(fields: [gameMapId], references: [id], onDelete: Cascade)
+  characterId String?
+  character   Character? @relation(fields: [characterId], references: [id], onDelete: Cascade)
+  npcId       String?
+  npc         Npc?       @relation(fields: [npcId], references: [id], onDelete: Cascade)
+  x           Int        @default(0)
+  y           Int        @default(0)
+  updatedAt   DateTime   @updatedAt
+
+  @@unique([gameMapId, characterId])
+  @@unique([gameMapId, npcId])
 }

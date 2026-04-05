@@ -14,6 +14,7 @@ import { TechniqueTemplateModule } from './technique-template/technique-template
 import { ItemModule } from './item/item.module';
 import { InventoryModule } from './inventory/inventory.module';
 import { TalentoModule } from './talento/talento.module';
+import { GameMapModule } from './game-map/game-map.module';
 
 @Module({
   imports: [
@@ -32,6 +33,7 @@ import { TalentoModule } from './talento/talento.module';
     ItemModule,
     InventoryModule,
     TalentoModule,
+    GameMapModule,
   ],
 })
 export class AppModule {}

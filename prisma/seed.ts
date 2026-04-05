@@ -123,6 +123,7 @@ async function main() {
           alcance: 'toque',
           duracao: 'imediato',
           nome: 'Cura',
+          skillNome: 'Medicina',
           descricao:
             'Você pode, como uma ação bônus, curar uma criatura em alcance de toque em um valor igual a 2d6 + seu modificador de Carisma ou Sabedoria, uma quantidade de vezes igual ao seu modificador, por descanso curto ou longo.',
         },

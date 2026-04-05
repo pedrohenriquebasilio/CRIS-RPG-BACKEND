@@ -54,8 +54,8 @@ export class CombatService {
   ) {
     const combat = await this.getCombatForMaster(combatId, masterId);
 
-    if (combat.state !== CombatState.COMBAT_CREATED) {
-      throw new BadRequestException('Cannot add participants after initiative has been rolled');
+    if (combat.state === CombatState.COMBAT_FINISHED) {
+      throw new BadRequestException('Cannot add participants to a finished combat');
     }
 
     if (!data.characterId && !data.npcId) {
@@ -64,35 +64,79 @@ export class CombatService {
 
     let hpAtual = 0;
     let energiaAtual = 0;
+    let agiVal = 1;
 
     if (data.characterId) {
       const character = await this.prisma.character.findUnique({
         where: { id: data.characterId },
+        include: { attributes: true },
       });
       if (!character) throw new NotFoundException('Character not found');
       hpAtual = character.hpAtual;
       energiaAtual = character.energiaAtual;
+      agiVal = character.attributes?.AGI ?? 1;
     } else if (data.npcId) {
-      const npc = await this.prisma.npc.findUnique({ where: { id: data.npcId } });
+      const npc = await this.prisma.npc.findUnique({
+        where: { id: data.npcId },
+        include: { attributes: true },
+      });
       if (!npc) throw new NotFoundException('NPC not found');
       hpAtual = npc.hpAtual;
       energiaAtual = npc.energiaAtual;
+      agiVal = npc.isSimplified ? npc.bonusAtaque : (npc.attributes?.AGI ?? 1);
     }
 
-    return this.prisma.combatParticipant.create({
+    // If combat already has initiative rolled, auto-roll for the new participant
+    const needsInitiative = combat.state !== CombatState.COMBAT_CREATED;
+    const initiative = needsInitiative ? this.rollService.roll1d20() + agiVal : 0;
+
+    // Find correct order position based on initiative
+    let ordem = 0;
+    if (needsInitiative) {
+      const existing = await this.prisma.combatParticipant.findMany({
+        where: { combatId },
+        orderBy: { ordem: 'asc' },
+      });
+      // Insert after participants with higher or equal initiative
+      ordem = existing.filter(p => (p.initiative ?? 0) >= initiative).length;
+
+      // Shift ordem of participants that come after
+      const toShift = existing.filter(p => p.ordem >= ordem);
+      if (toShift.length > 0) {
+        await this.prisma.$transaction(
+          toShift.map(p =>
+            this.prisma.combatParticipant.update({
+              where: { id: p.id },
+              data: { ordem: p.ordem + 1 },
+            }),
+          ),
+        );
+      }
+    }
+
+    const participant = await this.prisma.combatParticipant.create({
       data: {
         combatId,
         characterId: data.characterId,
         npcId: data.npcId,
         hpAtual,
         energiaAtual,
-        ordem: 0,
+        ordem,
+        initiative: needsInitiative ? initiative : undefined,
       },
       include: {
         character: true,
         npc: true,
       },
     });
+
+    // Emit combat update so all clients see the new participant
+    if (needsInitiative) {
+      const state = await this.getCombatState(combatId);
+      this.gateway.emitCombatUpdate(combat.campaignId, state);
+    }
+
+    return participant;
   }
 
   async rollInitiative(combatId: string, masterId: string) {
