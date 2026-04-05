@@ -15,6 +15,7 @@ import { ItemModule } from './item/item.module';
 import { InventoryModule } from './inventory/inventory.module';
 import { TalentoModule } from './talento/talento.module';
 import { GameMapModule } from './game-map/game-map.module';
+import { SceneModule } from './scene/scene.module';
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { GameMapModule } from './game-map/game-map.module';
     InventoryModule,
     TalentoModule,
     GameMapModule,
+    SceneModule,
   ],
 })
 export class AppModule {}

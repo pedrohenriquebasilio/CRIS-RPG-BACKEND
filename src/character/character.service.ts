@@ -561,6 +561,33 @@ export class CharacterService {
     return updated;
   }
 
+  async downgradeGrau(characterId: string, masterId: string) {
+    const character = await this.prisma.character.findUnique({
+      where: { id: characterId, isActive: true },
+      include: { campaign: true },
+    });
+    if (!character) throw new NotFoundException('Character not found');
+    if (character.campaign.masterId !== masterId) {
+      throw new ForbiddenException('Only master can downgrade grau');
+    }
+
+    const GRAU_SEQUENCE = ['4', '3', '2', '1', 'SEMI-ESPECIAL', 'ESPECIAL'];
+    const currentIndex = GRAU_SEQUENCE.indexOf(character.grau);
+    if (currentIndex <= 0) {
+      throw new BadRequestException('Character is already at minimum grau (4)');
+    }
+
+    const novoGrau = GRAU_SEQUENCE[currentIndex - 1];
+    const updated = await this.prisma.character.update({
+      where: { id: characterId },
+      data: { grau: novoGrau },
+      select: { id: true, nome: true, grau: true },
+    });
+
+    this.gateway.emitCharacterUpdate(character.campaignId, { id: characterId, grau: novoGrau });
+    return updated;
+  }
+
   async deactivate(characterId: string, requestingUserId: string) {
     const character = await this.prisma.character.findUnique({
       where: { id: characterId, isActive: true },

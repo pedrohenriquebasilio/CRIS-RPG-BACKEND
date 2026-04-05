@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param, UseGuards, Patch } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, UseGuards, Patch, Delete } from '@nestjs/common';
 import { CampaignService } from './campaign.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RolesGuard } from '../auth/roles.guard';
@@ -74,5 +74,12 @@ export class CampaignController {
     @CurrentUser() user: any,
   ) {
     return this.campaignService.approveCharacter(id, characterId, user.id);
+  }
+
+  @Delete(':id')
+  @UseGuards(RolesGuard)
+  @Roles(Role.MASTER)
+  deleteCampaign(@Param('id') id: string, @CurrentUser() user: any) {
+    return this.campaignService.deleteCampaign(id, user.id);
   }
 }

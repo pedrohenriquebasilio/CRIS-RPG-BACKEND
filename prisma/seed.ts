@@ -1,5 +1,6 @@
 import 'dotenv/config';
 import { PrismaClient, Atributo } from '@prisma/client';
+import { maldicoes } from './seed-maldicoes';
 
 const prisma = new PrismaClient();
 
@@ -1258,6 +1259,106 @@ async function main() {
   }
 
   console.log(`  ${aptidoesData.length} aptidões de sistema criadas/atualizadas.`);
+
+  // ===== MALDIÇÕES (MOBS GRAU 4 e 3) =====
+  console.log('\n--- Seedando Maldições (Grau 4 e 3) ---');
+
+  const allSpecs = await prisma.specialization.findMany();
+  const allSkillsRef = await prisma.skill.findMany();
+  const allAptitudes = await prisma.aptitude.findMany();
+
+  const specMap = new Map(allSpecs.map((s) => [s.nome, s.id]));
+  const skillMapRef = new Map(allSkillsRef.map((s) => [s.nome, s.id]));
+  const aptMap = new Map(allAptitudes.map((a) => [a.nome, a.id]));
+
+  // Precisa de uma campanha e um master para vincular os mobs
+  const masterUser = await prisma.user.findFirst({ where: { role: 'MASTER' } });
+  const campaign = await prisma.campaign.findFirst();
+
+  if (masterUser && campaign) {
+    for (const m of maldicoes) {
+      const existing = await prisma.character.findFirst({
+        where: { nome: m.nome, isMob: true, campaignId: campaign.id },
+      });
+      if (existing) {
+        console.log(`  ⏭ ${m.nome} já existe, pulando.`);
+        continue;
+      }
+
+      const specId = specMap.get(m.specializationNome);
+      if (!specId) {
+        console.warn(`  ⚠ Especialização "${m.specializationNome}" não encontrada, pulando ${m.nome}.`);
+        continue;
+      }
+
+      const character = await prisma.character.create({
+        data: {
+          campaignId: campaign.id,
+          userId: masterUser.id,
+          nome: m.nome,
+          isMob: true,
+          isApproved: true,
+          nivel: m.nivel,
+          grau: m.grau,
+          hpMax: m.hpMax,
+          hpAtual: m.hpMax,
+          energiaMax: m.energiaMax,
+          energiaAtual: m.energiaMax,
+          maestriaBonus: m.maestriaBonus,
+          specializationId: specId,
+          attributes: { create: m.attributes },
+        },
+      });
+
+      for (const skillNome of m.skillsTreinadas) {
+        const skillId = skillMapRef.get(skillNome);
+        if (skillId) {
+          await prisma.characterSkill.create({
+            data: {
+              characterId: character.id,
+              skillId,
+              treinada: true,
+              pontosInvestidos: m.grau === '3' ? 10 : 5,
+            },
+          });
+        }
+      }
+
+      for (const tech of m.techniques) {
+        await prisma.technique.create({
+          data: {
+            characterId: character.id,
+            nome: tech.nome,
+            nivel: tech.nivel,
+            custoEnergia: tech.custoEnergia,
+            atributoBase: tech.atributoBase,
+            tipoDano: tech.tipoDano,
+            damageDice: tech.damageDice,
+            descricaoLivre: tech.descricaoLivre,
+            skillNome: tech.skillNome,
+          },
+        });
+      }
+
+      for (const aptNome of m.aptitudesNomes) {
+        const aptId = aptMap.get(aptNome);
+        if (aptId) {
+          await prisma.characterAptitude.create({
+            data: {
+              characterId: character.id,
+              aptitudeId: aptId,
+              adquiridaNoNivel: 1,
+              ativo: true,
+            },
+          });
+        }
+      }
+
+      console.log(`  ✓ ${m.nome} (Grau ${m.grau}, Nv${m.nivel})`);
+    }
+  } else {
+    console.log('  ⚠ Nenhum MASTER ou campanha encontrada — pule as maldições ou crie-os primeiro.');
+  }
 
   console.log('Seed finalizada com sucesso.');
 }

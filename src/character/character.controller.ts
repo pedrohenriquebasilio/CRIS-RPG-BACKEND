@@ -405,6 +405,16 @@ export class CharacterController {
     return this.characterService.upgradeGrau(id, user.id);
   }
 
+  @Patch(':id/grau/down')
+  @UseGuards(RolesGuard)
+  @Roles(Role.MASTER)
+  downgradeGrau(
+    @Param('id') id: string,
+    @CurrentUser() user: any,
+  ) {
+    return this.characterService.downgradeGrau(id, user.id);
+  }
+
   @Patch(':id/avatar')
   @UseInterceptors(FileInterceptor('file', {
     storage: diskStorage({

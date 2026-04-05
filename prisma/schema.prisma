@@ -77,6 +77,7 @@ model Campaign {
   npcs       Npc[]
   logs       CombatLog[]
   gameMap    GameMap?
+  scenes     Scene[]
 }
 
 model Character {
@@ -492,4 +493,16 @@ model MapPosition {
 
   @@unique([gameMapId, characterId])
   @@unique([gameMapId, npcId])
+}
+
+// ─── Scenes (Cenários) ──────────────────────────────────────────────────────
+
+model Scene {
+  id         String   @id @default(uuid())
+  campaignId String
+  campaign   Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  nome       String
+  imageUrl   String
+  isActive   Boolean  @default(false)
+  createdAt  DateTime @default(now())
 }
