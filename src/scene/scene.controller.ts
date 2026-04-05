@@ -1,5 +1,5 @@
 import {
-  Controller, Get, Post, Delete, Param, Body, UseGuards,
+  Controller, Get, Post, Patch, Delete, Param, Body, UseGuards,
   UseInterceptors, UploadedFile, BadRequestException,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
@@ -87,5 +87,40 @@ export class SceneController {
     @CurrentUser() user: { id: string },
   ) {
     return this.sceneService.remove(campaignId, sceneId, user.id);
+  }
+
+  // ── Scene Tokens ──
+
+  @Get('tokens/:sceneId')
+  getTokens(@Param('sceneId') sceneId: string) {
+    return this.sceneService.getTokens(sceneId);
+  }
+
+  @Post('tokens/:sceneId')
+  placeToken(
+    @Param('sceneId') sceneId: string,
+    @CurrentUser() user: { id: string },
+    @Body() body: { characterId?: string; npcId?: string; xPct?: number; yPct?: number },
+  ) {
+    return this.sceneService.placeToken(sceneId, user.id, body);
+  }
+
+  @Patch('tokens/:sceneId/:tokenId')
+  moveToken(
+    @Param('sceneId') sceneId: string,
+    @Param('tokenId') tokenId: string,
+    @CurrentUser() user: { id: string },
+    @Body() body: { xPct: number; yPct: number },
+  ) {
+    return this.sceneService.moveToken(sceneId, user.id, tokenId, body.xPct, body.yPct);
+  }
+
+  @Delete('tokens/:sceneId/:tokenId')
+  removeToken(
+    @Param('sceneId') sceneId: string,
+    @Param('tokenId') tokenId: string,
+    @CurrentUser() user: { id: string },
+  ) {
+    return this.sceneService.removeToken(sceneId, user.id, tokenId);
   }
 }

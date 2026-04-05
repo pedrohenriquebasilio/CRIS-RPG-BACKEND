@@ -16,8 +16,16 @@ export class SceneService {
     return campaign;
   }
 
+  private readonly tokenInclude = {
+    character: { select: { id: true, nome: true, avatarUrl: true, hpAtual: true, hpMax: true, isMob: true } },
+    npc: { select: { id: true, nome: true, hpAtual: true, hpMax: true } },
+  } as const;
+
   async getById(sceneId: string) {
-    const scene = await this.prisma.scene.findUnique({ where: { id: sceneId } });
+    const scene = await this.prisma.scene.findUnique({
+      where: { id: sceneId },
+      include: { tokens: { include: this.tokenInclude } },
+    });
     if (!scene) throw new NotFoundException('Cenário não encontrado');
     return scene;
   }
@@ -77,6 +85,67 @@ export class SceneService {
   async getActive(campaignId: string) {
     return this.prisma.scene.findFirst({
       where: { campaignId, isActive: true },
+      include: { tokens: { include: this.tokenInclude } },
+    });
+  }
+
+  // ── Token management ──
+
+  async placeToken(sceneId: string, userId: string, data: { characterId?: string; npcId?: string; xPct?: number; yPct?: number }) {
+    const scene = await this.prisma.scene.findUnique({ where: { id: sceneId } });
+    if (!scene) throw new NotFoundException('Cenário não encontrado');
+    await this.assertMaster(scene.campaignId, userId);
+
+    const where = data.characterId
+      ? { sceneId_characterId: { sceneId, characterId: data.characterId } }
+      : { sceneId_npcId: { sceneId, npcId: data.npcId! } };
+
+    const createData = {
+      sceneId,
+      xPct: data.xPct ?? 50,
+      yPct: data.yPct ?? 50,
+      ...(data.characterId ? { characterId: data.characterId } : { npcId: data.npcId }),
+    };
+
+    const token = await this.prisma.sceneToken.upsert({
+      where,
+      update: { xPct: data.xPct ?? 50, yPct: data.yPct ?? 50 },
+      create: createData,
+      include: this.tokenInclude,
+    });
+
+    this.gateway.emitToCampaign(scene.campaignId, 'sceneTokenUpdated', token);
+    return token;
+  }
+
+  async moveToken(sceneId: string, userId: string, tokenId: string, xPct: number, yPct: number) {
+    const scene = await this.prisma.scene.findUnique({ where: { id: sceneId } });
+    if (!scene) throw new NotFoundException('Cenário não encontrado');
+    await this.assertMaster(scene.campaignId, userId);
+
+    const token = await this.prisma.sceneToken.update({
+      where: { id: tokenId },
+      data: { xPct, yPct },
+      include: this.tokenInclude,
+    });
+
+    this.gateway.emitToCampaign(scene.campaignId, 'sceneTokenUpdated', token);
+    return token;
+  }
+
+  async removeToken(sceneId: string, userId: string, tokenId: string) {
+    const scene = await this.prisma.scene.findUnique({ where: { id: sceneId } });
+    if (!scene) throw new NotFoundException('Cenário não encontrado');
+    await this.assertMaster(scene.campaignId, userId);
+
+    await this.prisma.sceneToken.delete({ where: { id: tokenId } });
+    this.gateway.emitToCampaign(scene.campaignId, 'sceneTokenRemoved', { tokenId });
+  }
+
+  async getTokens(sceneId: string) {
+    return this.prisma.sceneToken.findMany({
+      where: { sceneId },
+      include: this.tokenInclude,
     });
   }
 }

@@ -117,6 +117,7 @@ model Character {
   combatParticipations CombatParticipant[]
   inventory            InventoryItem[]
   mapPositions         MapPosition[]
+  sceneTokens          SceneToken[]
 }
 
 model Talento {
@@ -431,6 +432,7 @@ model Npc {
   attributes           NpcAttribute?
   combatParticipations CombatParticipant[]
   mapPositions         MapPosition[]
+  sceneTokens          SceneToken[]
 }
 
 model NpcAttribute {
@@ -505,4 +507,22 @@ model Scene {
   imageUrl   String
   isActive   Boolean  @default(false)
   createdAt  DateTime @default(now())
+
+  tokens SceneToken[]
+}
+
+model SceneToken {
+  id          String     @id @default(uuid())
+  sceneId     String
+  scene       Scene      @relation(fields: [sceneId], references: [id], onDelete: Cascade)
+  characterId String?
+  character   Character? @relation(fields: [characterId], references: [id], onDelete: Cascade)
+  npcId       String?
+  npc         Npc?       @relation(fields: [npcId], references: [id], onDelete: Cascade)
+  xPct        Float      @default(50)
+  yPct        Float      @default(50)
+  updatedAt   DateTime   @updatedAt
+
+  @@unique([sceneId, characterId])
+  @@unique([sceneId, npcId])
 }
