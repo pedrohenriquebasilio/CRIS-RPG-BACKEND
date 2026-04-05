@@ -11,10 +11,10 @@ export class GameMapController {
   @Post(':campaignId')
   createMap(
     @Param('campaignId') campaignId: string,
-    @CurrentUser() user: { sub: string },
+    @CurrentUser() user: { id: string },
     @Body() body: { width?: number; height?: number },
   ) {
-    return this.gameMapService.createMap(campaignId, user.sub, body.width, body.height);
+    return this.gameMapService.createMap(campaignId, user.id, body.width, body.height);
   }
 
   @Get(':campaignId')
@@ -25,28 +25,28 @@ export class GameMapController {
   @Patch(':campaignId/tiles')
   updateTiles(
     @Param('campaignId') campaignId: string,
-    @CurrentUser() user: { sub: string },
+    @CurrentUser() user: { id: string },
     @Body() body: { tiles: number[][] },
   ) {
-    return this.gameMapService.updateTiles(campaignId, user.sub, body.tiles);
+    return this.gameMapService.updateTiles(campaignId, user.id, body.tiles);
   }
 
   @Post(':campaignId/token')
   placeToken(
     @Param('campaignId') campaignId: string,
-    @CurrentUser() user: { sub: string },
+    @CurrentUser() user: { id: string },
     @Body() body: { characterId?: string; npcId?: string; x: number; y: number },
   ) {
-    return this.gameMapService.placeToken(campaignId, user.sub, body);
+    return this.gameMapService.placeToken(campaignId, user.id, body);
   }
 
   @Delete(':campaignId/token/:positionId')
   removeToken(
     @Param('campaignId') campaignId: string,
     @Param('positionId') positionId: string,
-    @CurrentUser() user: { sub: string },
+    @CurrentUser() user: { id: string },
   ) {
-    return this.gameMapService.removeToken(campaignId, user.sub, positionId);
+    return this.gameMapService.removeToken(campaignId, user.id, positionId);
   }
 
   @Get(':campaignId/positions')
